@@ -20,7 +20,6 @@ export default async function Home() {
     })
   }
 
-
   return (
     <div className="p-8">
       <Link href={'/edit'} className='flex items-center gap-2 p-2 bg-black text-white rounded float-right'>Manage Items</Link>

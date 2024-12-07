@@ -35,7 +35,7 @@ const Table = (data: {data: TableData}) => {
             <tr
             key={item.id}
             className="border border-black-300 px-4 py-2 cursor-pointer hover:bg-violet-100"
-            onClick={() => handleRowClick()}
+            // onClick={() => handleRowClick()}
             >
               {
                 Object.values(item).map(itemData => {

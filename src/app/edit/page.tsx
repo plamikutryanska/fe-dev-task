@@ -1,6 +1,8 @@
+import ManageItemForm from "@/components/ManageItemForm"
+
 const EditPage = () => {
   return (
-    <h1>Edit Page</h1>
+    <ManageItemForm/>
   )
 }
 
