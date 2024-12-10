@@ -114,20 +114,28 @@ function useCarDetails(client: GraphQLClient) {
 
       const modelsResponse = await Promise.all(carModelsPromise)
 
-      const carModificationsPromise = modelsResponse.flatMap((res) => {
-        return res.carModels.map((model) => {
-          return client.request<{carModifications: CarModifications[]}>(GET_CAR_MODIFICATIONS, {modelId: model.id})
-        })
+      const flattenModelsResponse = modelsResponse.flatMap((res, brandIndex) => {
+        return res.carModels.map((model) => ({
+          ...model,
+          brandIndex
+        }))
       })
 
+      const carModificationsPromise = flattenModelsResponse.map((res) => {
+          return client.request<{carModifications: CarModifications[]}>(GET_CAR_MODIFICATIONS, {modelId: res.id})
+      })
+
+      
       const modificationsResponse = await Promise.all(carModificationsPromise)
 
-      const combinedData: CombinedData[] = carBrands.map((brand, index) => ({
+      const modelsWithModifications = flattenModelsResponse.map((model, index) => ({
+        ...model,
+        modifications: modificationsResponse[index].carModifications
+      }))
+
+      const combinedData: CombinedData[] = carBrands.map((brand, brandIndex) => ({
         brand,
-        models: modelsResponse[index].carModels.map((model, modelIndex) => ({
-          ...model,
-          modifications: modificationsResponse[modelIndex].carModifications
-        }))
+        models: modelsWithModifications.filter((model) => model.brandIndex === brandIndex)
       })
     
     )

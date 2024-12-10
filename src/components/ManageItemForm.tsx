@@ -12,7 +12,7 @@ const coupe = Object.values(CarCoupe)
 
 const ManageItemForm = () => {
 
-  const {data, addCarBrand, editCarBrand, deleteCarBrand } = useCarDetailsContext()
+  const {data} = useCarDetailsContext()
 
   const [selectedBrand, setSelectedBrand] =  useState<CarBrand>({id:'', name: ''})
   const [selectedModel, setSelectedModel] =  useState<PartialCarModel>({id:'', name: ''})
@@ -21,17 +21,7 @@ const ManageItemForm = () => {
   const [horsepower, setHorsepower] =  useState<number>(0)
   const [weight, setWeight] =  useState<number>(0)
 
-  // const handleModelsDropdown = (data: CombinedData[], selectedBrand: CarBrand) => {
-  //   const brandModels = data.filter(brand => brand.brand.name === selectedBrand.name)
-  //   return brandModels.flatMap(b => b.models.map(mod => mod.name))
-  // }
-
-  // selectedBrand && handleModelsDropdown(data, selectedBrand)
-
  const disabledInputs = selectedModel.name === ''
-
-
- console.log('selected coupe ===>', selectedCoupe)
 
   return (
     <div className="flex justify-center items-center mt-24 mb-24 ">
