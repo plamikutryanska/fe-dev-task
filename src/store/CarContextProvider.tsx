@@ -15,6 +15,7 @@ export interface CarContextType {
   deleteCarModel: (id: string) => Promise<void>,
   addCarModel: (brandId: string, name: string) => Promise<void>
   editCarModel: (brandId: string, name: string) => Promise<void>
+  deleteCarModification: (id: string) => Promise<void>,
 }
 
 interface CarProviderProps {
@@ -37,7 +38,8 @@ export const CarProvider: React.FC<CarProviderProps> = ({children}) => {
     deleteCarBrand,
     deleteCarModel,
     addCarModel,
-    editCarModel
+    editCarModel,
+    deleteCarModification
   } = useCarDetailsV2(client)
 
   return (
@@ -52,7 +54,8 @@ export const CarProvider: React.FC<CarProviderProps> = ({children}) => {
         deleteCarBrand,
         deleteCarModel,
         addCarModel,
-        editCarModel
+        editCarModel,
+        deleteCarModification
       }}>
       {children}
     </CarContext.Provider>

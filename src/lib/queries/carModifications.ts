@@ -11,3 +11,9 @@ export const GET_CAR_MODIFICATIONS = gql`
     }
   }
 `
+
+export const DELETE_CAR_MODIFICATIONS = gql`
+    mutation DeleteCarModification($id: ID!) {
+    deleteCarModification(id: $id)
+  }
+`

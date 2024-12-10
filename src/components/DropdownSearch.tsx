@@ -23,7 +23,7 @@ const DropdownSearch = (prop: DropdownSearchProp) => {
   const [search, setSearch] = useState<string>("")
   const [isOpen, setIsOpen] = useState<boolean>(false)
 
-  const searchedResult = prop.listItems.filter(item => item.name.toLowerCase().includes(search.toLocaleLowerCase()))
+  const searchedResult = prop.listItems?.filter(item => item.name.toLowerCase().includes(search.toLocaleLowerCase()))
 
   return (
     <div className="relative w-64 mt-6 flex flex-col h-12">
@@ -49,7 +49,7 @@ const DropdownSearch = (prop: DropdownSearchProp) => {
             required={prop.isRequired}
       />
           <ul className="max-h-80 overflow-y-auto w-full px-3 py-2 border-black rounded bg-white focus:outline-none shadow">
-          {searchedResult.length > 0 ? (
+          {searchedResult?.length > 0 ? (
             searchedResult.map((item) => {
               return (
               <li 

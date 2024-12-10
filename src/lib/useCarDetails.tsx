@@ -2,7 +2,7 @@ import { useReducer, useEffect, useCallback } from "react";
 import { GraphQLClient } from "graphql-request";
 import { GET_CAR_BRANDS, EDIT_CAR_BRAND, DELETE_CAR_BRAND, ADD_CAR_BRANDS } from "./queries/carBrands";
 import { GET_CAR_MODELS, DELETE_CAR_MODEL, ADD_CAR_MODEL, EDIT_CAR_MODEL } from "./queries/carModels";
-import { GET_CAR_MODIFICATIONS } from "./queries/carModifications";
+import { DELETE_CAR_MODIFICATIONS, GET_CAR_MODIFICATIONS } from "./queries/carModifications";
 import { CombinedData, CarBrand, CarModifications,CarModel } from "@/types/carTypes";
 
 interface State {
@@ -21,6 +21,7 @@ type Action =
   | { type: 'DELETE_CAR_MODEL'; id: string}
   | { type: 'ADD_CAR_MODEL'; model: CarModel}
   | { type: 'EDIT_CAR_MODEL'; model: CarModel}
+  | { type: 'DELETE_CAR_MODIFICATION'; id: string}
 
 
 const initialState: State = {
@@ -92,6 +93,17 @@ const reducer = (state: State, action: Action): State => {
       return {
         ...state,
         data: updatedModel
+      }
+    case 'DELETE_CAR_MODIFICATION':
+      return {
+        ...state,
+        data: state.data.map((item) => ({
+          ...item,
+          models: item.models.map((model) => ({
+            ...model,
+            modifications: model.modifications.filter((mod) => mod.id.toString() !== action.id)
+          })) 
+        }))
       }
     default:
       throw new Error(`Unhandled request`)
@@ -233,6 +245,18 @@ function useCarDetails(client: GraphQLClient) {
     }
   }
 
+  const deleteCarModification = async (id: string) => {
+    try{
+      const response = await client.request<{deleteCarModification: boolean}>(DELETE_CAR_MODIFICATIONS, {id})
+
+      if(response.deleteCarModification){
+        dispatch({type: 'DELETE_CAR_MODIFICATION', id})
+      }
+    } catch(error){
+      dispatch({type: 'FETCH_ERROR', error: error as Error})
+    }
+  }
+
   useEffect(() => {
     fetchAllData()
   }, [])
@@ -245,7 +269,8 @@ function useCarDetails(client: GraphQLClient) {
     deleteCarBrand,
     deleteCarModel,
     addCarModel,
-    editCarModel
+    editCarModel,
+    deleteCarModification
   }
 }
 
