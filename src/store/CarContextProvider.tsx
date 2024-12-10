@@ -3,6 +3,7 @@ import React, {createContext, ReactNode, useContext} from 'react'
 import { GraphQLClient } from 'graphql-request'
 import useCarDetailsV2 from '@/lib/useCarDetailsV2'
 import { CombinedData } from '../types/carTypes'
+import { CarBrandData } from '@/lib/_generated/graphql_sdk'
 
 export interface CarContextType {
   data: CombinedData[],
@@ -14,6 +15,7 @@ export interface CarContextType {
   deleteCarBrand: (id: string) => Promise<void>,
   deleteCarModel: (id: string) => Promise<void>,
   addCarModel: (brandId: string, name: string) => Promise<void>
+  editCarModel: (brandId: string, name: string) => Promise<void>
 }
 
 interface CarProviderProps {
@@ -35,7 +37,8 @@ export const CarProvider: React.FC<CarProviderProps> = ({children}) => {
     editCarBrand,
     deleteCarBrand,
     deleteCarModel,
-    addCarModel
+    addCarModel,
+    editCarModel
   } = useCarDetailsV2(client)
 
   return (
@@ -49,7 +52,8 @@ export const CarProvider: React.FC<CarProviderProps> = ({children}) => {
         editCarBrand,
         deleteCarBrand,
         deleteCarModel,
-        addCarModel
+        addCarModel,
+        editCarModel
       }}>
       {children}
     </CarContext.Provider>

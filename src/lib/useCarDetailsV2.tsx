@@ -1,7 +1,7 @@
 import { useReducer, useEffect, useCallback } from "react";
 import { GraphQLClient } from "graphql-request";
 import { GET_CAR_BRANDS, EDIT_CAR_BRAND, DELETE_CAR_BRAND, ADD_CAR_BRANDS } from "./queries/carBrands";
-import { GET_CAR_MODELS, DELETE_CAR_MODEL, ADD_CAR_MODEL } from "./queries/carModels";
+import { GET_CAR_MODELS, DELETE_CAR_MODEL, ADD_CAR_MODEL, EDIT_CAR_MODEL } from "./queries/carModels";
 import { GET_CAR_MODIFICATIONS } from "./queries/carModifications";
 import { CombinedData, CarBrand, CarModifications,CarModel } from "@/types/carTypes";
 
@@ -20,6 +20,7 @@ type Action =
   | { type: 'DELETE_CAR_BRAND'; id: string}
   | { type: 'DELETE_CAR_MODEL'; id: string}
   | { type: 'ADD_CAR_MODEL'; model: CarModel}
+  | { type: 'EDIT_CAR_MODEL'; model: CarModel}
 
 
 const initialState: State = {
@@ -73,6 +74,27 @@ const reducer = (state: State, action: Action): State => {
           } : item
         })
       };
+    case 'EDIT_CAR_MODEL':
+      console.log('Action data ===>', action.model);
+      const updatedModel = state.data.map((brand) => {
+        if(brand.brand.id === action.model.brand.id){
+          console.log('Brand matched ===>', brand);
+          return {
+            ...brand,
+            models: brand.models.map((mod) => {
+              if(mod.id === action.model.id){
+                return {...mod, name: action.model.name}
+              }
+              return mod
+            })
+          }
+        }
+        return brand
+      })
+      return {
+        ...state,
+        data: updatedModel
+      }
     default:
       throw new Error(`Unhandled request`)
   }
@@ -190,6 +212,22 @@ function useCarDetailsV2(client: GraphQLClient) {
     }
   }
 
+  const editCarModel = async (id: string, name: string) => {
+    try {
+      const response = await client.request<{editCarModel: CarModel}>(EDIT_CAR_MODEL, {data: {id, name}})
+      const updatedModel = response.editCarModel
+      dispatch({
+        type: 'EDIT_CAR_MODEL', model: updatedModel
+      })
+
+      fetchAllData()
+
+    } catch(error){
+      console.log('error ===>', error)
+      dispatch({type: 'FETCH_ERROR', error: error as Error})
+    }
+  }
+
   useEffect(() => {
     fetchAllData()
   }, [])
@@ -201,7 +239,8 @@ function useCarDetailsV2(client: GraphQLClient) {
     editCarBrand,
     deleteCarBrand,
     deleteCarModel,
-    addCarModel
+    addCarModel,
+    editCarModel
   }
 }
 

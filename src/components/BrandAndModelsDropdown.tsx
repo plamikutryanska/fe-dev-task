@@ -17,7 +17,7 @@ type BrandAndModelsDropdownProps = {
 const BrandAndModelsDropdown = (props: BrandAndModelsDropdownProps) => {
   const {selectedBrand, setSelectedBrand, selectedModel, setSelectedModel} = props
 
-  const {data, addCarBrand, editCarBrand, deleteCarBrand, deleteCarModel, addCarModel} = useCarDetailsContext()
+  const {data, addCarBrand, editCarBrand, deleteCarBrand, deleteCarModel, addCarModel, editCarModel} = useCarDetailsContext()
 
   const [modalState, setModalState] = useState({
     isBrandModalOpen: false,
@@ -124,7 +124,7 @@ const BrandAndModelsDropdown = (props: BrandAndModelsDropdownProps) => {
       inputData={inputState.model}
       onInputChange={(value) => handleInputChange('model', value)}
       clearInput={() => clearInput('model')}
-      editFn={() => console.log('NOT YET DONE')}
+      editFn={editCarModel}
       deleteFn={deleteCarModel}
     />}
 
