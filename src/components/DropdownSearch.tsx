@@ -67,10 +67,11 @@ const DropdownSearch = (prop: DropdownSearchProp) => {
             })
           ) : (
             <div className="flex-col justify-items-center">
-              <div>{'no results found'}</div>
+              <div className="text-lg">{'no results found'}</div>
+              <div className="text-xs text-center font-bold">{'type name in search box to be able to create'}</div>
               <button
                 onClick={() => prop.createButtonFn({name: search.trim(), additionalParam: prop.disabled ? undefined : search.trim()})} 
-                className="mt-2 border border-black rounded px-4 py-1.5 cursor-pointer bg-black text-white"
+                className={`mt-2 border border-black rounded px-4 py-1.5 cursor-pointer bg-black text-white ${search === "" && "bg-gray-300 cursor-not-allowed "}`}
                 disabled={search === ""}
               >
                 {`Create ${prop.createContext} +`}

@@ -64,26 +64,29 @@ const BrandAndModelsDropdown = (props: BrandAndModelsDropdownProps) => {
   }
 
   return (
-    <div className="flex justify-between">
-    <div className="flex">
-    <DropdownSearch 
-      title='brand'
-      dropdownLabel="Select a brand"
-      listItems={handleDropdownItems()}
-      handleSelection={(item) => handleSelection('brand', item)}
-      createButtonFn={({name}) => addCarBrand(name)}
-      selectedItem={selectedBrand.name}
-      createContext="brand"
-      isRequired
-    />
-    {selectedBrand.name &&
-      <button
-        onClick={() => toggleModal("brand", true)} 
-        className="flex h-10 mt-11 items-center px-3 bg-black text-white rounded float-right"
-      >
-        Edit
-      </button>
-    }
+    <div className="flex flex-col items-center md:flex-row md:justify-between w-full">
+
+    <div className="flex flex-col md:flex-row md:space-x-4 md:mb-0">
+    <div className="flex flex-row md:flex-row md:mb-0">
+      <DropdownSearch 
+        title='brand'
+        dropdownLabel="Select a brand"
+        listItems={handleDropdownItems()}
+        handleSelection={(item) => handleSelection('brand', item)}
+        createButtonFn={({name}) => addCarBrand(name)}
+        selectedItem={selectedBrand.name}
+        createContext="brand"
+        isRequired
+      />
+      {selectedBrand.name &&
+        <button
+          onClick={() => toggleModal("brand", true)} 
+          className="flex h-10 mt-11 md:mt-11 items-center px-3 bg-black text-white rounded"
+        >
+          Edit
+        </button>
+      }
+    </div>
     {modalState.isBrandModalOpen && <Modal
       title={'Edit Modal'}
       subTitle="Edit car brand"
@@ -96,27 +99,29 @@ const BrandAndModelsDropdown = (props: BrandAndModelsDropdownProps) => {
       // onEditSuccess={(updatedBrand) => setSelectedBrand(updatedBrand as CarBrand)}
     />}
     </div>
-    <div className="flex">
+    <div className="flex flex-col md:flex-row md:space-x-4 md:mb-0">
+    <div className="flex flex-row md:flex-row md:mb-0">
       <DropdownSearch
-        title='model'
-        dropdownLabel="Select a model"
-        listItems={handleModelsDropdown()}
-        handleSelection={(item) => handleSelection('model', item)}
-        selectedItem={selectedModel.name}
-        createButtonFn={({name}) => addCarModel(selectedBrand.id.toString(), name)}
-        createContext="model"
-        additionalParam={selectedBrand.id.toString()}
-        disabled={!selectedBrand.name}
-        isRequired
-      />
-      {selectedModel.name &&
-        <button
-          onClick={() => toggleModal('model', true)} 
-          className="flex h-10 mt-11 items-center px-3 bg-black text-white rounded float-right"
-        >
-          Edit
-        </button>
-      }
+          title='model'
+          dropdownLabel="Select a model"
+          listItems={handleModelsDropdown()}
+          handleSelection={(item) => handleSelection('model', item)}
+          selectedItem={selectedModel.name}
+          createButtonFn={({name}) => addCarModel(selectedBrand.id.toString(), name)}
+          createContext="model"
+          additionalParam={selectedBrand.id.toString()}
+          disabled={!selectedBrand.name}
+          isRequired
+        />
+        {selectedModel.name &&
+          <button
+            onClick={() => toggleModal('model', true)} 
+            className="flex h-10 mt-11 md:mt-11 items-center px-3 bg-black text-white rounded"
+          >
+            Edit
+          </button>
+        }
+    </div>
     {modalState.isModelModalOpen && <Modal
       title={'Edit Modal'}
       subTitle="Edit car model"
