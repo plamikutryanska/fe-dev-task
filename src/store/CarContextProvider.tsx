@@ -1,9 +1,8 @@
 'use client'
 import React, {createContext, ReactNode, useContext} from 'react'
 import { GraphQLClient } from 'graphql-request'
-import useCarDetailsV2 from '@/lib/useCarDetailsV2'
+import useCarDetailsV2 from '@/lib/useCarDetails'
 import { CombinedData } from '../types/carTypes'
-import { CarBrandData } from '@/lib/_generated/graphql_sdk'
 
 export interface CarContextType {
   data: CombinedData[],

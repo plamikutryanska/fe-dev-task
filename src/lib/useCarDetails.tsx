@@ -75,10 +75,8 @@ const reducer = (state: State, action: Action): State => {
         })
       };
     case 'EDIT_CAR_MODEL':
-      console.log('Action data ===>', action.model);
       const updatedModel = state.data.map((brand) => {
         if(brand.brand.id === action.model.brand.id){
-          console.log('Brand matched ===>', brand);
           return {
             ...brand,
             models: brand.models.map((mod) => {
@@ -101,7 +99,7 @@ const reducer = (state: State, action: Action): State => {
 }
 
 
-function useCarDetailsV2(client: GraphQLClient) {
+function useCarDetails(client: GraphQLClient) {
   const [state, dispatch] = useReducer(reducer, initialState)
 
   const fetchAllData = useCallback(async () => {
@@ -223,7 +221,6 @@ function useCarDetailsV2(client: GraphQLClient) {
       fetchAllData()
 
     } catch(error){
-      console.log('error ===>', error)
       dispatch({type: 'FETCH_ERROR', error: error as Error})
     }
   }
@@ -244,5 +241,5 @@ function useCarDetailsV2(client: GraphQLClient) {
   }
 }
 
-export default useCarDetailsV2;
+export default useCarDetails;
 
