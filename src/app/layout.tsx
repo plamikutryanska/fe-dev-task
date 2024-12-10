@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { CarProvider } from '@/store/CarContextProvider'
 import './globals.css'
 
 
@@ -15,7 +16,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <div>{children}</div>
+      <CarProvider>
+        {children}
+      </CarProvider>
       </body>
     </html>
   )

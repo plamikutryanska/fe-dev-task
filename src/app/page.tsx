@@ -1,33 +1,30 @@
-import { GraphQLBackend } from '@lib/api/graphql'
+'use client'
 import Link from 'next/link'
 import EmptyState from '@/components/EmptyState'
 import Table from '@/components/Table'
+import { useCarDetailsContext } from '@/store/CarContextProvider'
+import { handleTableData } from '@/utils/carUtils'
 import './globals.css'
 
-export default async function Home() {
-  const brand = await GraphQLBackend.GetBrands()
 
-  const handleTableData = () => {
-    return brand.carBrands.map(car => {
-      return {
-        id: car.id,
-        brand: car.name,
-        model: 'carModel',
-        modification: 'modificationName',
-        horsepower: 'horsepower',
-        weight: 'weight'
-      }
-    })
-  }
+const Home = () => {
+  const {data, loading, error} = useCarDetailsContext()
+
+  if(loading) return<div>LOADING.....</div>
+  if(error) return<div>ERROR.....</div>
+
+  const tableData = handleTableData(data)
 
   return (
     <div className="p-8">
       <Link href={'/edit'} className='flex items-center gap-2 p-2 bg-black text-white rounded float-right'>Manage Items</Link>
       {
-        handleTableData().length === 0 ? 
+        tableData.length === 0 ? 
         <EmptyState message="No Car Data Available"/> :
-        <Table data={handleTableData()}/>
+        <Table data={tableData}/>
       }
     </div>
   )
 }
+
+export default Home

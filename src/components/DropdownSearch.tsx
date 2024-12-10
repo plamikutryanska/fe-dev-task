@@ -1,29 +1,39 @@
 'use client'
 import { useState } from "react"
 
+type ListItems = {
+  id: number
+  name: string
+}
+
 type DropdownSearchProp = {
   title: string,
   dropdownLabel: string,
-  listItems: string[],
+  listItems: ListItems[],
   handleSelection: (e: any) => void,
   selectedItem: string,
+  createButtonFn: (args: {name: string, additionalParam?: string}) => void,
+  createContext?: string,
+  additionalParam?: string,
+  disabled?: boolean
   isRequired?: boolean
 }
 
 const DropdownSearch = (prop: DropdownSearchProp) => {
-  const [search, setSearch] = useState("")
-  const [isOpen, setIsOpen] = useState(false)
+  const [search, setSearch] = useState<string>("")
+  const [isOpen, setIsOpen] = useState<boolean>(false)
 
-  const searchedResult = prop.listItems.filter(item => item.toLowerCase().includes(search.toLocaleLowerCase()))
+  const searchedResult = prop.listItems.filter(item => item.name.toLowerCase().includes(search.toLocaleLowerCase()))
 
   return (
-    <div className="relative w-64 mt-6 flex flex-col">
+    <div className="relative w-64 mt-6 flex flex-col h-12">
       <label className="uppercase text-sm">
         {prop.isRequired ? `${prop.title}*` : prop.title}
       </label>
       <button 
-        className="w-full px-3 py-2 border-black rounded bg-white focus:outline-none"
+        className={`w-full px-3 py-2 border border-white rounded focus:outline-none ${prop.disabled ? "bg-violet-200" : "bg-white"}`}
         onClick={() => setIsOpen(!isOpen)}
+        disabled={prop.disabled}
       >
         {prop.selectedItem === '' ? prop.dropdownLabel : prop.selectedItem}
       </button>
@@ -38,17 +48,20 @@ const DropdownSearch = (prop: DropdownSearchProp) => {
             className="w-full px-3 py-2 focus:outline-none text-black"
             required={prop.isRequired}
       />
-          <ul className="w-full px-3 py-2 border-black rounded bg-white focus:outline-none">
+          <ul className="max-h-80 overflow-y-auto w-full px-3 py-2 border-black rounded bg-white focus:outline-none shadow">
           {searchedResult.length > 0 ? (
-            searchedResult.map((item, index) => {
+            searchedResult.map((item) => {
               return (
               <li 
-                key={index}
-                value={item}
-                onClick={() => {prop.handleSelection(item); setIsOpen(false)}}
+                key={`${item.id}`}
+                value={item.name}
+                onClick={() => {
+                  prop.handleSelection(item);
+                  setIsOpen(false)
+                }}
                 className="px-4 py-2 cursor-pointer hover:bg-gray-200"
               >
-                {item}
+                {item.name}
               </li>
               )
             })
@@ -56,10 +69,11 @@ const DropdownSearch = (prop: DropdownSearchProp) => {
             <div className="flex-col justify-items-center">
               <div>{'no results found'}</div>
               <button
-                onClick={() => console.log('MUST ADD ITEM TO LISTITEMS')} 
+                onClick={() => prop.createButtonFn({name: search.trim(), additionalParam: prop.disabled ? undefined : search.trim()})} 
                 className="mt-2 border border-black rounded px-4 py-1.5 cursor-pointer bg-black text-white"
+                disabled={search === ""}
               >
-                {'Create +'}
+                {`Create ${prop.createContext} +`}
               </button>
             </div>
           )
@@ -67,7 +81,7 @@ const DropdownSearch = (prop: DropdownSearchProp) => {
           </ul>
           </div>
         ) : (
-          <div className=" w-64 flex flex-col bg-blue"></div>
+          null
         )
       }
       </div>

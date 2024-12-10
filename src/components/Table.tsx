@@ -1,18 +1,8 @@
 'use client'
-import {useRouter} from "next/navigation"
 
-
-type TableData = Array<{ [key: string]: string | number }>
+type TableData = Array<{ [key: string]: string | number | null }>
 
 const Table = (data: {data: TableData}) => {
-
-  const router = useRouter()
-
-  //this needs to take in a pop to make the path dynamic
-  const handleRowClick = () => {
-    router.push('/edit')
-  }
-
   const handleTableHeaders = () => {
     return data.data.length ? Object.keys(data.data[0]) : []
   }
@@ -30,12 +20,11 @@ const Table = (data: {data: TableData}) => {
     </thead>
     <tbody>
       {
-        data.data.map((item)  => {
+        data.data.map((item, index)  => {
           return (
             <tr
-            key={item.id}
-            className="border border-black-300 px-4 py-2 cursor-pointer hover:bg-violet-100"
-            // onClick={() => handleRowClick()}
+            key={`${item.id}-${index}`}
+            className="border border-black-300 px-4 py-2  even:bg-violet-100"
             >
               {
                 Object.values(item).map(itemData => {
