@@ -64,9 +64,10 @@ const BrandAndModelsDropdown: FC<BrandAndModelsDropdownProps> = (props) => {
   }
 
   return (
-    <div className="flex flex-col items-center md:flex-col lg:flex-row  md:justify-between w-full">
+    <div className="flex flex-col items-center">
     <div className="flex flex-col md:flex-row md:space-x-4 md:mb-0">
-    <div className="flex flex-row md:flex-row md:mb-0">
+
+    <div className="flex flex-row md:flex-row md:mb-0 z-50">
       <DropdownSearch 
         title='brand'
         dropdownLabel="Select a brand"
@@ -98,7 +99,7 @@ const BrandAndModelsDropdown: FC<BrandAndModelsDropdownProps> = (props) => {
       // onEditSuccess={(updatedBrand) => setSelectedBrand(updatedBrand as CarBrand)}
     />}
     </div>
-    <div className="flex flex-col md:flex-row md:space-x-4 md:mb-0">
+    <div className="flex flex-col md:flex-row md:space-x-4 md:mb-0 z-40">
     <div className="flex flex-row md:flex-row md:mb-0">
       <DropdownSearch
           title='model'

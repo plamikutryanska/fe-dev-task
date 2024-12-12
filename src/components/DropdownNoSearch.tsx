@@ -1,7 +1,7 @@
 'use client'
-import { useState } from "react"
+import { FC, useState } from "react"
 
-type DropdownNoSearchProp = {
+type DropdownNoSearchProps = {
   title: string,
   dropdownLabel: string,
   listItems: string[],
@@ -10,33 +10,34 @@ type DropdownNoSearchProp = {
   disabled?: boolean
 }
 
-const DropdownNoSearch = (prop: DropdownNoSearchProp) => {
+const DropdownNoSearch: FC<DropdownNoSearchProps> = (props) => {
+  const {title, dropdownLabel, listItems, handleSelection, selectedItem, disabled} = props
   const [isOpen, setIsOpen] = useState<boolean>(false)
 
   return (
     <div className="relative w-64 mt-6 flex flex-col h-12">
       <label className="uppercase text-sm">
-        {prop.title}
+        {title}
       </label>
       <button 
-        className={`w-full px-3 py-2 border border-white rounded focus:outline-none ${prop.disabled ? "bg-violet-200" : "bg-white"}`}
+        className={`w-full px-3 py-2 border border-white rounded focus:outline-none ${disabled ? "bg-violet-200" : "bg-white"}`}
         onClick={() => setIsOpen(!isOpen)}
-        disabled={prop.disabled}
+        disabled={disabled}
       >
-        {prop.selectedItem === '' ? prop.dropdownLabel : prop.selectedItem}
+        {selectedItem === '' ? dropdownLabel : selectedItem}
       </button>
       {
         isOpen ? (
           <div className="absolute mt-14 w-64 h-auto bg-white z-50">
           <ul className="max-h-80 overflow-y-auto w-full px-3 py-2 border-black rounded bg-white focus:outline-none shadow">
           {         
-            prop.listItems.map((item, index) => {
+            listItems.map((item, index) => {
               return (
               <li 
                 key={`${item}-${index}`}
                 value={item}
                 onClick={() => {
-                  prop.handleSelection(item);
+                  handleSelection(item);
                   setIsOpen(false)
                 }}
                 className="px-4 py-2 cursor-pointer hover:bg-gray-200"

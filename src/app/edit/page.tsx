@@ -1,7 +1,8 @@
 'use client'
+import { FC } from "react"
 import ManageItemForm from "@/components/ManageItemForm"
 
-const EditPage = () => {
+const EditPage: FC = () => {
   return (
     <ManageItemForm />
   )
