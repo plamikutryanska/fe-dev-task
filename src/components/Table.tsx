@@ -27,7 +27,7 @@ const Table:FC<TableProps> = ({data, tableTitle, headerAbbreviations}) => {
       <tr>
         {handleTableHeaders().map(item => {
           return (
-          <th className="border border-black-300 px-4 py-2 capitalize text-xs sm:text-sm">
+          <th key={item} className="border border-black-300 px-4 py-2 capitalize text-xs sm:text-sm">
             <span className="block md:hidden">
             {getAbbreviation(item)}
             </span>
