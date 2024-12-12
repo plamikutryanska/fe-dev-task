@@ -1,9 +1,9 @@
-import { SetStateAction, useState, Dispatch } from "react"
-import DropdownSearch from "./DropdownSearch"
-import Modal from "./Modal"
+import { FC, SetStateAction, useState, Dispatch } from "react"
 import { useCarDetailsContext } from "@/store/CarContextProvider"
 import {CarBrand, CarModel} from '@lib/_generated/graphql_sdk'
 
+import DropdownSearch from "./DropdownSearch"
+import Modal from "./Modal"
 
 type PartialCarModel = Pick<CarModel, "id" | "name">
 
@@ -14,29 +14,29 @@ type BrandAndModelsDropdownProps = {
   setSelectedModel: Dispatch<SetStateAction<PartialCarModel>>
 }
 
-const BrandAndModelsDropdown = (props: BrandAndModelsDropdownProps) => {
+const BrandAndModelsDropdown: FC<BrandAndModelsDropdownProps> = (props) => {
   const {selectedBrand, setSelectedBrand, selectedModel, setSelectedModel} = props
 
   const {data, addCarBrand, editCarBrand, deleteCarBrand, deleteCarModel, addCarModel, editCarModel} = useCarDetailsContext()
 
-  const [modalState, setModalState] = useState({
+  const [modalState, setModalState] = useState<{isBrandModalOpen: boolean, isModelModalOpen: boolean}>({
     isBrandModalOpen: false,
     isModelModalOpen: false
   })
 
-  const [inputState, setInputState] = useState({
+  const [inputState, setInputState] = useState<{brand: CarBrand, model: PartialCarModel}>({
     brand: selectedBrand,
     model: selectedModel
   })
 
-  const toggleModal = (modalType: 'brand' | 'model', isOpen: boolean) => {
+  const toggleModal = (modalType: 'brand' | 'model', isOpen: boolean): void => {
     setModalState((prv) => ({
       ...prv,
       [`is${modalType.charAt(0).toUpperCase() + modalType.slice(1)}ModalOpen`]: isOpen
     }))
   }
 
-  const handleDropdownItems = () => {
+  const handleDropdownItems = (): CarBrand[] => {
     return data.map((item => item.brand))
   }
 
@@ -45,15 +45,15 @@ const BrandAndModelsDropdown = (props: BrandAndModelsDropdownProps) => {
     return brandModels.flatMap(b => b.models)
   }
 
-  const handleInputChange = (type: 'brand' | 'model', value: CarBrand | PartialCarModel) => {
+  const handleInputChange = (type: 'brand' | 'model', value: CarBrand | PartialCarModel): void => {
     setInputState((prv) => ({...prv, [type]: value}))
   }
 
-  const clearInput = (type: 'brand' | 'model') => {
+  const clearInput = (type: 'brand' | 'model'): void => {
     setInputState((prv) => ({...prv, [type]: {id: "", name: ""}}))
   }
 
-  const handleSelection = (type: 'brand' | 'model', item: CarBrand | PartialCarModel) => {
+  const handleSelection = (type: 'brand' | 'model', item: CarBrand | PartialCarModel): void => {
     if(type === 'brand'){
       setSelectedBrand(item as CarBrand)
       setInputState((prv) => ({...prv, brand: item as CarBrand}))

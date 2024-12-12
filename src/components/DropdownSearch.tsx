@@ -1,41 +1,54 @@
 'use client'
-import { useState } from "react"
+import { FC, useState } from "react"
 
 type ListItems = {
-  id: number
+  id: string | number
   name: string
 }
 
-type DropdownSearchProp = {
+type DropdownSearchProps = {
   title: string,
   dropdownLabel: string,
   listItems: ListItems[],
   handleSelection: (e: any) => void,
   selectedItem: string,
-  createButtonFn: (args: {name: string, additionalParam?: string}) => void,
+  createButtonFn: (args: {name: string, additionalParam?: string, additionalParamsV2?: Record<string, any>}) => void,
   createContext?: string,
   additionalParam?: string,
   disabled?: boolean
   isRequired?: boolean
 }
 
-const DropdownSearch = (prop: DropdownSearchProp) => {
+const DropdownSearch: FC<DropdownSearchProps> = (props) => {
+  const {
+    title,
+    dropdownLabel,
+    listItems,
+    handleSelection,
+    selectedItem,
+    createButtonFn,
+    createContext,
+    additionalParam,
+    disabled,
+    isRequired
+  } = props
+
   const [search, setSearch] = useState<string>("")
   const [isOpen, setIsOpen] = useState<boolean>(false)
 
-  const searchedResult = prop.listItems?.filter(item => item.name.toLowerCase().includes(search.toLocaleLowerCase()))
+  const searchedResult = listItems?.filter(item => item.name.toLowerCase().includes(search.toLocaleLowerCase()))
 
   return (
     <div className="relative w-64 mt-6 flex flex-col h-12">
       <label className="uppercase text-sm">
-        {prop.isRequired ? `${prop.title}*` : prop.title}
+        {isRequired ? `${title}*` : title}
       </label>
       <button 
-        className={`w-full px-3 py-2 border border-white rounded focus:outline-none ${prop.disabled ? "bg-violet-200" : "bg-white"}`}
+        className={`w-full px-3 py-2 border border-white rounded focus:outline-none ${disabled ? "bg-violet-200" : "bg-white"}`}
         onClick={() => setIsOpen(!isOpen)}
-        disabled={prop.disabled}
+        disabled={disabled}
       >
-        {prop.selectedItem === '' ? prop.dropdownLabel : prop.selectedItem}
+        {selectedItem === '' ? dropdownLabel : selectedItem}
       </button>
       {
         isOpen ? (
@@ -46,7 +59,7 @@ const DropdownSearch = (prop: DropdownSearchProp) => {
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search..."
             className="w-full px-3 py-2 focus:outline-none text-black"
-            required={prop.isRequired}
+            required={isRequired}
       />
           <ul className="max-h-80 overflow-y-auto w-full px-3 py-2 border-black rounded bg-white focus:outline-none shadow">
           {searchedResult?.length > 0 ? (
@@ -56,7 +69,7 @@ const DropdownSearch = (prop: DropdownSearchProp) => {
                 key={`${item.id}`}
                 value={item.name}
                 onClick={() => {
-                  prop.handleSelection(item);
+                  handleSelection(item);
                   setIsOpen(false)
                 }}
                 className="px-4 py-2 cursor-pointer hover:bg-gray-200"
@@ -70,11 +83,11 @@ const DropdownSearch = (prop: DropdownSearchProp) => {
               <div className="text-lg">{'no results found'}</div>
               <div className="text-xs text-center font-bold">{'type name in search box to be able to create'}</div>
               <button
-                onClick={() => prop.createButtonFn({name: search.trim(), additionalParam: prop.disabled ? undefined : search.trim()})} 
+                onClick={() => createButtonFn({name: search.trim(), additionalParam: disabled ? undefined : search.trim()})} 
                 className={`mt-2 border border-black rounded px-4 py-1.5 cursor-pointer bg-black text-white ${search === "" && "bg-gray-300 cursor-not-allowed "}`}
                 disabled={search === ""}
               >
-                {`Create ${prop.createContext} +`}
+                {`Create ${createContext} +`}
               </button>
             </div>
           )

@@ -1,7 +1,5 @@
-export interface CarBrand {
-  id: number
-  name: string
-}
+
+import { CarBrand, CarCoupe, CarModification } from "@/lib/_generated/graphql_sdk"
 
 export interface CarModel {
   id: number
@@ -9,27 +7,8 @@ export interface CarModel {
   brand: CarBrand
 }
 
-export enum CarCoupe {
-  Convertible = 'CONVERTIBLE',
-  Coupe = 'COUPE',
-  Hatchback = 'HATCHBACK',
-  Sedan = 'SEDAN',
-  Suv = 'SUV',
-  Truck = 'TRUCK',
-  Van = 'VAN',
-  Wagon = 'WAGON',
-}
-
-export interface CarModifications {
-  id: number
-  name: string
-  coupe: CarCoupe | null
-  weight: number | null
-  horsePower: number | null
-}
-
 export type CombinedDataModels = {
-  modifications: CarModifications[]
+  modifications: CarModification[]
 } & CarModel
 
 

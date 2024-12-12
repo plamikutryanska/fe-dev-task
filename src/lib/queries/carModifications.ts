@@ -17,3 +17,19 @@ export const DELETE_CAR_MODIFICATIONS = gql`
     deleteCarModification(id: $id)
   }
 `
+
+export const ADD_CAR_MODIFICATIONS = gql`
+    mutation CreateCarModification($modelId: ID!, $name: String!) {
+    createCarModification(modelId: $modelId, name: $name){
+      id
+      name
+      coupe
+      weight
+      horsePower
+      model {
+        id
+        name
+      }
+    }
+  }
+`

@@ -2,8 +2,9 @@ import { useReducer, useEffect, useCallback } from "react";
 import { GraphQLClient } from "graphql-request";
 import { GET_CAR_BRANDS, EDIT_CAR_BRAND, DELETE_CAR_BRAND, ADD_CAR_BRANDS } from "./queries/carBrands";
 import { GET_CAR_MODELS, DELETE_CAR_MODEL, ADD_CAR_MODEL, EDIT_CAR_MODEL } from "./queries/carModels";
-import { DELETE_CAR_MODIFICATIONS, GET_CAR_MODIFICATIONS } from "./queries/carModifications";
-import { CombinedData, CarBrand, CarModifications,CarModel } from "@/types/carTypes";
+import { ADD_CAR_MODIFICATIONS, DELETE_CAR_MODIFICATIONS, GET_CAR_MODIFICATIONS } from "./queries/carModifications";
+import { CombinedData,CarModel } from "@/types/carTypes";
+import { CarBrand, CarModification } from "./_generated/graphql_sdk";
 
 interface State {
   loading: boolean;
@@ -22,6 +23,7 @@ type Action =
   | { type: 'ADD_CAR_MODEL'; model: CarModel}
   | { type: 'EDIT_CAR_MODEL'; model: CarModel}
   | { type: 'DELETE_CAR_MODIFICATION'; id: string}
+  | { type: 'ADD_CAR_MODIFICATIONS'; modification: CarModification }
 
 
 const initialState: State = {
@@ -105,6 +107,22 @@ const reducer = (state: State, action: Action): State => {
           })) 
         }))
       }
+    case 'ADD_CAR_MODIFICATIONS':
+      console.log('in reduer ====>')
+      return {
+        ...state,
+        data: state.data.map((brand) => ({
+          ...brand,
+          models: brand.models.map((model) =>
+            model.id.toString() === action.modification.id
+              ? {
+                 ...model,
+                  modifications: [...model.modifications, action.modification],
+                  }
+                : model
+            ),
+          })),
+        };
     default:
       throw new Error(`Unhandled request`)
   }
@@ -134,7 +152,7 @@ function useCarDetails(client: GraphQLClient) {
       })
 
       const carModificationsPromise = flattenModelsResponse.map((res) => {
-          return client.request<{carModifications: CarModifications[]}>(GET_CAR_MODIFICATIONS, {modelId: res.id})
+          return client.request<{carModifications: CarModification[]}>(GET_CAR_MODIFICATIONS, {modelId: res.id})
       })
 
       
@@ -257,6 +275,26 @@ function useCarDetails(client: GraphQLClient) {
     }
   }
 
+  const addCarModifications = async (modelId: string, name: string) => {
+    try {
+      const response = await client.request<{ createCarModification: CarModification }>(
+        ADD_CAR_MODIFICATIONS,
+        { modelId, name }
+      );
+  
+      const newModification = response.createCarModification;
+  
+      dispatch({
+        type: 'ADD_CAR_MODIFICATIONS',
+        modification: newModification,
+      });
+
+      fetchAllData()
+    } catch (error) {
+      dispatch({ type: 'FETCH_ERROR', error: error as Error });
+      console.error('Error adding car modification:', error);
+    }
+  };
   useEffect(() => {
     fetchAllData()
   }, [])
@@ -270,7 +308,8 @@ function useCarDetails(client: GraphQLClient) {
     deleteCarModel,
     addCarModel,
     editCarModel,
-    deleteCarModification
+    deleteCarModification,
+    addCarModifications
   }
 }
 
