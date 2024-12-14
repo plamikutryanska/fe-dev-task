@@ -14,7 +14,7 @@ type ModificationFormProps = {
 const defaultCarModification: CarModificationData = {
   id:'',
   name: '',
-  coupe: undefined,
+  coupe: CarCoupe.Convertible,
   horsePower: 0,
   weight: 0
 }
@@ -25,6 +25,7 @@ const ModificationForm: FC<ModificationFormProps> = ({brandId, modelId}) => {
 
   const [selectedModification, setSelectedModification] =  useState<CarModificationData>(defaultCarModification)
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+  const [selectedCoupe, setSelectedCoupe] = useState<CarCoupe | ''>('')
 
   const selectedBrand = data.find((b) => b.brand.id === brandId)
   const selectedModel = selectedBrand?.models.filter(mod => mod.id.toString() === modelId.toString())[0]
@@ -55,10 +56,10 @@ const ModificationForm: FC<ModificationFormProps> = ({brandId, modelId}) => {
   }
 
   const handleEditModification = async (updatedData: CarModificationData) => {
-    const {id, name, horsePower, weight, coupe} = updatedData
+    const {id, name, horsePower, weight} = updatedData
     const validHorsePower = horsePower ?? 50
     const validWeight = weight ?? 500
-    const defaultCoupe = coupe ?? CarCoupe.Convertible //fallback to convertable
+    const defaultCoupe = selectedCoupe || CarCoupe.Convertible //fallback to convertable
 
     if(id && name){
       await editCarModification({
@@ -81,7 +82,7 @@ const ModificationForm: FC<ModificationFormProps> = ({brandId, modelId}) => {
   return (         
     <div className="flex flex-col justify-between items-center">
     <label className="uppercase font-semibold mt-2">Modification Details</label> 
-    <div className="z-30">
+    <div className="flex flex-row w-64 ml-1 z-30">
     <DropdownSearch
       title='modification name'
       dropdownLabel="Select modification name"
@@ -113,12 +114,14 @@ const ModificationForm: FC<ModificationFormProps> = ({brandId, modelId}) => {
         name: selectedModification.name || '',
         horsePower: selectedModificationDetails.horsePower || 0,
         weight: selectedModificationDetails.weight || 0,
-        coupe: selectedModificationDetails.coupe || undefined
+        coupe: selectedModificationDetails.coupe || CarCoupe.Convertible
       }}
       onInputChange={handleModalInputChange}
       clearInput={clearModalInput}
       editFn={handleEditModification}
       deleteFn={deleteCarModification}
+      selectedCoupe={selectedCoupe}
+      setSelectedCoupe={setSelectedCoupe}
       />
     }
    </div>

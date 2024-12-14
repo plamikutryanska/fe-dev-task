@@ -4,7 +4,7 @@ import { GET_CAR_BRANDS, EDIT_CAR_BRAND, DELETE_CAR_BRAND, ADD_CAR_BRANDS } from
 import { GET_CAR_MODELS, DELETE_CAR_MODEL, ADD_CAR_MODEL, EDIT_CAR_MODEL } from "./queries/carModels";
 import { ADD_CAR_MODIFICATIONS, DELETE_CAR_MODIFICATIONS, GET_CAR_MODIFICATIONS, EDIT_CAR_MODIFICATIONS } from "./queries/carModifications";
 import { CombinedData,CarModel } from "@/types/carTypes";
-import { CarBrand, CarModification } from "./_generated/graphql_sdk";
+import { CarBrand, CarModification, CarModificationData } from "./_generated/graphql_sdk";
 
 interface State {
   loading: boolean;
@@ -136,7 +136,6 @@ const reducer = (state: State, action: Action): State => {
               )
             }))
           }))
-        
         return {
           ...state,
           data: updatedData
@@ -311,16 +310,13 @@ function useCarDetails(client: GraphQLClient) {
       fetchAllData()
     } catch (error) {
       dispatch({ type: 'FETCH_ERROR', error: error as Error });
-      console.error('Error adding car modification:', error);
     }
   };
 
-  const editCarModification = async (modificationData: CarModification) => {
+  const editCarModification = async (modificationData: CarModificationData) => {
     try {
-      const { id, name, horsePower, weight, coupe } = modificationData;
-    
+      const { id, name, horsePower, weight, coupe } = modificationData;    
       if (!id || !name) return;
-      console.log('COUPE ====>', coupe)
       const response = await client.request<{ editCarModification: CarModification }>(
         EDIT_CAR_MODIFICATIONS,
         { data: { id, name, horsePower, weight, coupe } }

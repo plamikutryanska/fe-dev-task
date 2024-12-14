@@ -17,6 +17,8 @@ type ModalProps = {
   clearInput: () => void;
   editFn: (modificationData: CarModificationData) => void;
   deleteFn: (id: string) => void;
+  selectedCoupe: CarCoupe | string
+  setSelectedCoupe: (coupe: CarCoupe) => void
 };
 
 const ModificationModel: FC<ModalProps> = ({
@@ -27,21 +29,28 @@ const ModificationModel: FC<ModalProps> = ({
   onInputChange,
   clearInput,
   editFn,
-  deleteFn
+  deleteFn,
+  selectedCoupe,
+  setSelectedCoupe
 }) => {
-  const { id, name, horsePower, weight, coupe } = inputData;
+  const { id, name, horsePower, weight } = inputData;
 
   const [modifiedName, setModifiedName] = useState(name);
   const [modifiedHorsepower, setModifiedHorsepower] = useState<number>(horsePower);
   const [modifiedWeight, setModifiedWeight] = useState<number>(weight);
-  const [selectedCoupe, setSelectedCoupe] = useState<InputMaybe<CarCoupe> | undefined>(coupe)
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, updater: Dispatch<SetStateAction<number>>) => {
     updater(Number(e.target.value));
   }
 
   const handleSave = () => {
-    const updatedData: CarModificationData = { id, name: modifiedName, horsePower: modifiedHorsepower, weight: modifiedWeight, coupe: selectedCoupe };
+    const updatedData: CarModificationData = {
+       id,
+       name: modifiedName,
+       horsePower: modifiedHorsepower,
+       weight: modifiedWeight,
+       coupe: selectedCoupe as CarCoupe 
+      };
     editFn(updatedData);
   }
 
@@ -94,8 +103,6 @@ const ModificationModel: FC<ModalProps> = ({
           className='border border-black rounded p-2 w-full'
         />
       </div>
-
-
       <div className="flex justify-between mt-4">
         <button
           onClick={handleSave}

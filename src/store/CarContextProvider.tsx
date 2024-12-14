@@ -27,7 +27,7 @@ interface CarProviderProps {
 
 export const CarContext = createContext<CarContextType | undefined>(undefined)
 
-const client = new GraphQLClient('https://task_fe_demo.pfgbulgaria.com/graphql')
+const client = new GraphQLClient(process.env.NEXT_PUBLIC_FRONTEND_GRAPTHQL_ENDPOINT ?? "")
 
 export const CarProvider: React.FC<CarProviderProps> = ({children}) => {
 
