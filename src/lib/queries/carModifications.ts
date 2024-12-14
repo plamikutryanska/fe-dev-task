@@ -33,3 +33,19 @@ export const ADD_CAR_MODIFICATIONS = gql`
     }
   }
 `
+
+export const EDIT_CAR_MODIFICATIONS = gql`
+    mutation EditCarModification($data: CarModificationData!) {
+      editCarModification(data: $data){
+        id
+        name
+        coupe
+        weight
+        horsePower
+        model {
+          id
+          name
+        }
+      }
+  }
+`

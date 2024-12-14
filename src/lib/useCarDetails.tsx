@@ -2,7 +2,7 @@ import { useReducer, useEffect, useCallback } from "react";
 import { GraphQLClient } from "graphql-request";
 import { GET_CAR_BRANDS, EDIT_CAR_BRAND, DELETE_CAR_BRAND, ADD_CAR_BRANDS } from "./queries/carBrands";
 import { GET_CAR_MODELS, DELETE_CAR_MODEL, ADD_CAR_MODEL, EDIT_CAR_MODEL } from "./queries/carModels";
-import { ADD_CAR_MODIFICATIONS, DELETE_CAR_MODIFICATIONS, GET_CAR_MODIFICATIONS } from "./queries/carModifications";
+import { ADD_CAR_MODIFICATIONS, DELETE_CAR_MODIFICATIONS, GET_CAR_MODIFICATIONS, EDIT_CAR_MODIFICATIONS } from "./queries/carModifications";
 import { CombinedData,CarModel } from "@/types/carTypes";
 import { CarBrand, CarModification } from "./_generated/graphql_sdk";
 
@@ -24,6 +24,7 @@ type Action =
   | { type: 'EDIT_CAR_MODEL'; model: CarModel}
   | { type: 'DELETE_CAR_MODIFICATION'; id: string}
   | { type: 'ADD_CAR_MODIFICATIONS'; modification: CarModification }
+  | { type: 'EDIT_CAR_MODIFICATIONS', modification: CarModification}
 
 
 const initialState: State = {
@@ -108,7 +109,6 @@ const reducer = (state: State, action: Action): State => {
         }))
       }
     case 'ADD_CAR_MODIFICATIONS':
-      console.log('in reduer ====>')
       return {
         ...state,
         data: state.data.map((brand) => ({
@@ -123,6 +123,25 @@ const reducer = (state: State, action: Action): State => {
             ),
           })),
         };
+        case 'EDIT_CAR_MODIFICATIONS': {
+          if (!action.modification || !action.modification.id) {
+            return state;
+          }
+          const updatedData = state.data.map((brand) => ({
+            ...brand,
+            models: brand.models.map((model) => ({
+              ...model,
+              modifications: model.modifications.map((mod) => 
+                mod.id === action.modification.id ? {...mod, ...action.modification} : mod
+              )
+            }))
+          }))
+        
+        return {
+          ...state,
+          data: updatedData
+        }
+      }
     default:
       throw new Error(`Unhandled request`)
   }
@@ -295,6 +314,26 @@ function useCarDetails(client: GraphQLClient) {
       console.error('Error adding car modification:', error);
     }
   };
+
+  const editCarModification = async (modificationData: CarModification) => {
+    try {
+      const { id, name, coupe, horsePower, weight } = modificationData;
+      if (!id || !name) return;
+  
+      const response = await client.request<{ editCarModification: CarModification }>(
+        EDIT_CAR_MODIFICATIONS,
+        { data: { id, name, coupe, horsePower, weight } }
+      );
+      
+      const updatedModification = response.editCarModification;
+  
+      dispatch({ type: 'EDIT_CAR_MODIFICATIONS', modification: updatedModification });
+      fetchAllData();
+    } catch (error) {
+      dispatch({ type: "FETCH_ERROR", error: error as Error });
+    }
+  };
+
   useEffect(() => {
     fetchAllData()
   }, [])
@@ -309,7 +348,8 @@ function useCarDetails(client: GraphQLClient) {
     addCarModel,
     editCarModel,
     deleteCarModification,
-    addCarModifications
+    addCarModifications,
+    editCarModification
   }
 }
 

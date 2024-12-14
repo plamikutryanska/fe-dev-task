@@ -1,9 +1,8 @@
 import { FC, useMemo, useState } from "react"
 import DropdownSearch from "./DropdownSearch"
-import DropdownNoSearch from "./DropdownNoSearch"
-import Modal from "./Modal"
+import ModificationModel from "./ModificationModel"
 import { useCarDetailsContext } from "@/store/CarContextProvider"
-import { CarCoupe, CarModificationData } from "@/lib/_generated/graphql_sdk"
+import { CarCoupe, CarModificationData} from "@/lib/_generated/graphql_sdk"
 
 type ModificationFormProps = {
   brandId: string
@@ -11,7 +10,7 @@ type ModificationFormProps = {
 }
 
 const ModificationForm: FC<ModificationFormProps> = ({brandId, modelId}) => {
-  const {data, deleteCarModification, addCarModifications} = useCarDetailsContext()
+  const {data, deleteCarModification, addCarModifications, editCarModification} = useCarDetailsContext()
 
   const defaultCarModification: CarModificationData = {
     id:'',
@@ -21,11 +20,11 @@ const ModificationForm: FC<ModificationFormProps> = ({brandId, modelId}) => {
     weight: 0
   }
 
-  const [selectedCoupe, setSelectedCoupe] =  useState<CarCoupe | string>('')
   const [selectedModification, setSelectedModification] =  useState<CarModificationData>(defaultCarModification)
-  const [horsepower, setHorsepower] =  useState<number>(0)
-  const [weight, setWeight] =  useState<number>(0)
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+
+  const selectedBrand = data.find((b) => b.brand.id === brandId)
+  const selectedModel = selectedBrand?.models.filter(mod => mod.id.toString() === modelId.toString())[0]
 
   const carModificationsByBrandModel = useMemo(() => {
     return data.filter((car) => car.brand.id.toString() === brandId.toString())
@@ -46,29 +45,43 @@ const ModificationForm: FC<ModificationFormProps> = ({brandId, modelId}) => {
     }) || defaultCarModification
   }, [carModificationsByBrandModel, selectedModification])
 
-  const handleModalInputChnge = (value: {id: string; name: string}) => {
+  const handleModalInputChange = (value: {id: string; name: string}) => {
     setSelectedModification(value)
   }
+
 
   const clearModalInput = () => {
     setSelectedModification({id: '', name: ''})
   }
 
-  const handleHorsepowerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setHorsepower(Number(e.target.value))
-  }
+  const handleDirectEditTestV2 = async (updatedData: CarModificationData) => {
+    const {id, name, horsePower, weight} = updatedData
+    const validHorsePower = horsePower ?? 50
+    const validWeight = weight ?? 500
 
-  const handleWeightChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setWeight(Number(e.target.value))
-  }
+    if(id && name){
+      await editCarModification({
+        id,
+        name,
+        coupe: CarCoupe.Convertible, // NEEDS WORK
+        horsePower: validHorsePower,
+        weight: validWeight,
+        model: {
+          id: selectedModel?.id.toString() || '',
+          name: selectedModel?.name || '', 
+          brand: {id: selectedBrand?.brand.id.toString() || '', name: selectedBrand?.brand.name || ''
 
+          }}
+      });
+      setIsModalOpen(false)
+    }
+  };
 
-  return (
-            
+  return (         
     <div className="flex flex-col justify-between items-center">
     <div className="flex flex-row w-64 ml-1 z-30">
     <DropdownSearch
-      title='modification name'
+      title='modifications'
       dropdownLabel="Select modification name"
       listItems={handleModifictionNameItems}
       handleSelection={(item) => setSelectedModification(item)}
@@ -86,44 +99,33 @@ const ModificationForm: FC<ModificationFormProps> = ({brandId, modelId}) => {
       </button>
     }
     </div>
-    {isModalOpen && <Modal
+    {isModalOpen && <ModificationModel
       title={'Edit Modal'}
-      subTitle="Edit modification name"
+      subTitle="Edit modification details"
       closeFn={() => setIsModalOpen(false)}
-      inputData={{id: selectedModification.id, name: selectedModification.name || ''}}
-      onInputChange={handleModalInputChnge}
+      inputData={{
+        id: selectedModification.id,
+        name: selectedModification.name || '',
+        horsePower: selectedModification.horsePower || 0,
+        weight: selectedModification.weight || 0
+      }}
+      onInputChange={handleModalInputChange}
       clearInput={clearModalInput}
-      editFn={() => console.log('edit modification ===>')}
+      editFn={handleDirectEditTestV2}
       deleteFn={deleteCarModification}
       />
     }
-      <DropdownNoSearch
-        title='car coupe'
-        dropdownLabel="Select a coupe"
-        listItems={Object.values(CarCoupe)}
-        selectedItem={selectedModificationDetails.coupe || ''}
-        handleSelection={setSelectedCoupe}
-        disabled={selectedModification.id === ''}
-     />
       <div className="flex flex-col w-64 mt-6 ">
         <label className="uppercase text-sm">Horsepower</label>
-        <input
-          placeholder={'0'}
-          value={selectedModificationDetails.horsePower || horsepower}
-          onChange={handleHorsepowerChange}
-          className={`w-full px-3 py-2 mr-1 focus:outline-none text-black border border-white rounded ${!selectedModification.name && "bg-violet-200"}`}
-          disabled={!selectedModification.name}
-        />
+        <div className={`w-full px-3 py-2 mr-1 text-black bg-white rounded`}>
+          {selectedModificationDetails.horsePower || 0}
+        </div>
       </div>
       <div className="flex flex-col w-64 mt-6">
         <label className="uppercase text-sm">Weight</label>
-        <input
-          placeholder={'0'}
-          value={selectedModificationDetails.weight || weight}
-          onChange={handleWeightChange}
-          className={`w-full px-3 py-2 ml-1 focus:outline-none text-black border border-white rounded ${!selectedModification.name && "bg-violet-200"}`}
-          disabled={!selectedModification.name}
-        />
+        <div className={`w-full px-3 py-2 mr-1 text-black bg-white rounded`}>
+          {selectedModificationDetails.weight || 0}
+        </div>
       </div>
    </div>
   )

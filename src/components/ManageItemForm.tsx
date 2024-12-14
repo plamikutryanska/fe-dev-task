@@ -26,7 +26,7 @@ const ManageItemForm: FC = () => {
           selectedModel={selectedModel}
           setSelectedModel={setSelectedModel}
         />
-      <ModificationForm brandId={selectedBrand.id} modelId={selectedModel.id} />
+      <ModificationForm brandId={selectedBrand.id} modelId={selectedModel.id}/>
       </div>
     </div>
   )

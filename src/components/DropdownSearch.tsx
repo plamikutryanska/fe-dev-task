@@ -61,7 +61,7 @@ const DropdownSearch: FC<DropdownSearchProps> = (props) => {
             className="w-full px-3 py-2 focus:outline-none text-black"
             required={isRequired}
       />
-          <ul className="max-h-80 overflow-y-auto w-full px-3 py-2 border-black rounded bg-white focus:outline-none shadow">
+          <ul className="max-h-52 overflow-y-auto w-full px-3 py-2 border-black rounded bg-red focus:outline-none shadow">
           {searchedResult?.length > 0 ? (
             searchedResult.map((item) => {
               return (

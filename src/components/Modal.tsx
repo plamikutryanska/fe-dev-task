@@ -30,26 +30,28 @@ const Modal = <T extends {id: string, name: string}>(props: ModalProps<T>) => {
         <input
             value={inputData.name}
             onChange={(e) => onInputChange({...inputData, name: e.target.value})}
-            className='border border-black rounded p-2'
+            className='border border-black rounded p-2 w-full'
           />
-          <button
+      </div>
+        <div className='flex justify-between mt-4'>
+        <button
             onClick={async () => {
               await editFn(inputData.id.toString(), inputData.name),
               onEditSuccess && onEditSuccess(inputData)
             }}
-            className='p-2 bg-green-500 hover:bg-green-600 text-white rounded ml-2'
+            className='px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded w-full'
           >
             Edit item
           </button>
-      </div>
-        <div className='flex justify-end'>
           <button
             onClick={() => {deleteFn(inputData.id.toString()), clearInput()}}
-            className='px-4 py-2 w-fit bg-red-500 text-white rounded hover:bg-red-600'
+            className='px-4 py-2 w-fit bg-red-500 text-white rounded hover:bg-red-600 w-full'
           >
             Delete
           </button>
         </div>
+
+
       </div>
     </div>
   )
