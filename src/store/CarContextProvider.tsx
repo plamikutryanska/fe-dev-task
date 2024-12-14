@@ -1,5 +1,5 @@
 'use client'
-import React, {createContext, ReactNode, useContext} from 'react'
+import React, {createContext, ReactNode, useCallback, useContext, useEffect, useState} from 'react'
 import { GraphQLClient } from 'graphql-request'
 import useCarDetailsV2 from '@/lib/useCarDetails'
 import { CombinedData } from '../types/carTypes'
@@ -32,7 +32,7 @@ const client = new GraphQLClient(process.env.NEXT_PUBLIC_FRONTEND_GRAPTHQL_ENDPO
 export const CarProvider: React.FC<CarProviderProps> = ({children}) => {
 
   const {
-    data,
+    data: fetchedData,
     fetchAllData,
     loading,
     error,
@@ -47,26 +47,83 @@ export const CarProvider: React.FC<CarProviderProps> = ({children}) => {
     editCarModification
   } = useCarDetailsV2(client)
 
-  return (
-    <CarContext.Provider 
-      value={{
-        data,
-        loading,
-        error,
-        fetchAllData,
-        addCarBrand,
-        editCarBrand,
-        deleteCarBrand,
-        deleteCarModel,
-        addCarModel,
-        editCarModel,
-        deleteCarModification,
-        addCarModifications,
-        editCarModification
-      }}>
-      {children}
-    </CarContext.Provider>
-  )
+  const [cachedData, setCachedData] = useState<CombinedData[]>([])
+
+  useEffect(() => {
+    if(fetchedData){
+      setCachedData(fetchedData)
+    }
+  }, [fetchedData])
+
+  const updateCache = useCallback((updatedData: CombinedData[]) => {
+    setCachedData(updatedData)
+  },[])
+
+  const handleEditCarModification = async (modificationData: CarModification) => {
+    await editCarModification(modificationData);
+    const updatedCache = cachedData.map((brand) => ({
+      ...brand,
+      models: brand.models.map((model) => ({
+        ...model,
+        modifications: model.modifications.map((mod) =>
+          mod.id === modificationData.id ? { ...mod, ...modificationData } : mod
+        )
+      }))
+    }));
+    updateCache(updatedCache);
+  };
+
+  const handleAddCarModifications = async (modelId: string, name: string) => {
+    await addCarModifications(modelId, name);
+    fetchAllData();
+  };
+
+  const handleDeleteCarModification = async (id: string) => {
+    await deleteCarModification(id);
+    const updatedCache = cachedData.map((brand) => ({
+      ...brand,
+      models: brand.models.map((model) => ({
+        ...model,
+        modifications: model.modifications.filter((mod) => mod.id !== id)
+      }))
+    }));
+    updateCache(updatedCache);
+  };
+
+  const contextValue = React.useMemo(
+    () => ({
+      data: cachedData,
+      loading,
+      error,
+      fetchAllData,
+      addCarBrand,
+      editCarBrand,
+      deleteCarBrand,
+      deleteCarModel,
+      addCarModel,
+      editCarModel,
+      deleteCarModification: handleDeleteCarModification,
+      addCarModifications: handleAddCarModifications,
+      editCarModification: handleEditCarModification
+    }),
+    [
+      cachedData,
+      loading,
+      error,
+      fetchAllData,
+      addCarBrand,
+      editCarBrand,
+      deleteCarBrand,
+      deleteCarModel,
+      addCarModel,
+      editCarModel,
+      handleDeleteCarModification,
+      handleAddCarModifications,
+      handleEditCarModification
+    ]
+  );
+
+  return <CarContext.Provider value={contextValue}>{children}</CarContext.Provider>
 }
 
 export const useCarDetailsContext = () => {
