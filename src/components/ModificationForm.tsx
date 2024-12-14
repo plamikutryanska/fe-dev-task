@@ -1,24 +1,27 @@
 import { FC, useMemo, useState } from "react"
 import DropdownSearch from "./DropdownSearch"
 import ModificationModel from "./ModificationModel"
+import { InfoField } from "./InfoField"
 import { useCarDetailsContext } from "@/store/CarContextProvider"
 import { CarCoupe, CarModificationData} from "@/lib/_generated/graphql_sdk"
+import { getCarModificationsByBrandModel, getModificationNameId, getSelectedModificationDetails } from "@/utils/carUtils"
 
 type ModificationFormProps = {
   brandId: string
   modelId: string
 }
 
+const defaultCarModification: CarModificationData = {
+  id:'',
+  name: '',
+  coupe: undefined,
+  horsePower: 0,
+  weight: 0
+}
+
+
 const ModificationForm: FC<ModificationFormProps> = ({brandId, modelId}) => {
   const {data, deleteCarModification, addCarModifications, editCarModification} = useCarDetailsContext()
-
-  const defaultCarModification: CarModificationData = {
-    id:'',
-    name: '',
-    coupe: undefined,
-    horsePower: 0,
-    weight: 0
-  }
 
   const [selectedModification, setSelectedModification] =  useState<CarModificationData>(defaultCarModification)
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
@@ -27,45 +30,43 @@ const ModificationForm: FC<ModificationFormProps> = ({brandId, modelId}) => {
   const selectedModel = selectedBrand?.models.filter(mod => mod.id.toString() === modelId.toString())[0]
 
   const carModificationsByBrandModel = useMemo(() => {
-    return data.filter((car) => car.brand.id.toString() === brandId.toString())
-    .flatMap((model) => model.models.filter((mod) => mod.id.toString() === modelId.toString()))
+    return getCarModificationsByBrandModel(data, brandId, modelId)
   }, [data, brandId, modelId])
 
-
-  const handleModifictionNameItems = useMemo(() => {
-    return carModificationsByBrandModel[0]?.modifications.map((item) => ({
-      id: item.id,
-      name: item.name
-    })) || []
+  const handleModificationNameId = useMemo(() => {
+    return getModificationNameId(carModificationsByBrandModel[0]?.modifications)
   }, [carModificationsByBrandModel])
 
   const selectedModificationDetails = useMemo(() => {
-    return carModificationsByBrandModel[0]?.modifications.find((item) => {
-      return item.id === selectedModification.id
-    }) || defaultCarModification
+    return getSelectedModificationDetails(
+      carModificationsByBrandModel[0]?.modifications,
+      selectedModification.id,
+      defaultCarModification
+    )
   }, [carModificationsByBrandModel, selectedModification])
 
-  const handleModalInputChange = (value: {id: string; name: string}) => {
+
+  const handleModalInputChange = (value: {id: string; name: string}): void => {
     setSelectedModification(value)
   }
 
-
-  const clearModalInput = () => {
+  const clearModalInput = (): void => {
     setSelectedModification({id: '', name: ''})
   }
 
-  const handleDirectEditTestV2 = async (updatedData: CarModificationData) => {
-    const {id, name, horsePower, weight} = updatedData
+  const handleEditModification = async (updatedData: CarModificationData) => {
+    const {id, name, horsePower, weight, coupe} = updatedData
     const validHorsePower = horsePower ?? 50
     const validWeight = weight ?? 500
+    const defaultCoupe = coupe ?? CarCoupe.Convertible //fallback to convertable
 
     if(id && name){
       await editCarModification({
         id,
         name,
-        coupe: CarCoupe.Convertible, // NEEDS WORK
         horsePower: validHorsePower,
         weight: validWeight,
+        coupe: defaultCoupe,
         model: {
           id: selectedModel?.id.toString() || '',
           name: selectedModel?.name || '', 
@@ -79,26 +80,30 @@ const ModificationForm: FC<ModificationFormProps> = ({brandId, modelId}) => {
 
   return (         
     <div className="flex flex-col justify-between items-center">
-    <div className="flex flex-row w-64 ml-1 z-30">
+    <label className="uppercase font-semibold mt-2">Modification Details</label> 
+    <div className="z-30">
     <DropdownSearch
-      title='modifications'
+      title='modification name'
       dropdownLabel="Select modification name"
-      listItems={handleModifictionNameItems}
+      listItems={handleModificationNameId}
       handleSelection={(item) => setSelectedModification(item)}
       createButtonFn={({name}) => addCarModifications(modelId, name) }
       selectedItem={selectedModification.name || ''}
       createContext={'modification'}
       disabled={modelId === ''}
    />
+    </div>
+    <InfoField label="coupe" value={selectedModificationDetails.coupe || 'no coupe details'}/>
+    <InfoField label="horsepower" value={selectedModificationDetails.horsePower || 0}/>
+    <InfoField label="weight" value={selectedModificationDetails.weight || 0}/>
     {selectedModification.name &&
       <button
         onClick={() => setIsModalOpen(true)} 
-        className="flex h-10 mt-11 md:mt-11 items-center px-3 bg-black text-white rounded"
+        className="flex h-10 mt-2 items-center px-3 bg-black text-white rounded"
       >
-        Edit
+        Edit Modifications
       </button>
     }
-    </div>
     {isModalOpen && <ModificationModel
       title={'Edit Modal'}
       subTitle="Edit modification details"
@@ -106,27 +111,16 @@ const ModificationForm: FC<ModificationFormProps> = ({brandId, modelId}) => {
       inputData={{
         id: selectedModification.id,
         name: selectedModification.name || '',
-        horsePower: selectedModification.horsePower || 0,
-        weight: selectedModification.weight || 0
+        horsePower: selectedModificationDetails.horsePower || 0,
+        weight: selectedModificationDetails.weight || 0,
+        coupe: selectedModificationDetails.coupe || undefined
       }}
       onInputChange={handleModalInputChange}
       clearInput={clearModalInput}
-      editFn={handleDirectEditTestV2}
+      editFn={handleEditModification}
       deleteFn={deleteCarModification}
       />
     }
-      <div className="flex flex-col w-64 mt-6 ">
-        <label className="uppercase text-sm">Horsepower</label>
-        <div className={`w-full px-3 py-2 mr-1 text-black bg-white rounded`}>
-          {selectedModificationDetails.horsePower || 0}
-        </div>
-      </div>
-      <div className="flex flex-col w-64 mt-6">
-        <label className="uppercase text-sm">Weight</label>
-        <div className={`w-full px-3 py-2 mr-1 text-black bg-white rounded`}>
-          {selectedModificationDetails.weight || 0}
-        </div>
-      </div>
    </div>
   )
 }

@@ -81,7 +81,7 @@ const BrandAndModelsDropdown: FC<BrandAndModelsDropdownProps> = (props) => {
       {selectedBrand.name &&
         <button
           onClick={() => toggleModal("brand", true)} 
-          className="flex h-10 mt-11 md:mt-11 items-center px-3 bg-black text-white rounded"
+          className="flex h-10 mt-9 md:mt-9 items-center px-3 bg-black text-white rounded"
         >
           Edit
         </button>
@@ -96,7 +96,6 @@ const BrandAndModelsDropdown: FC<BrandAndModelsDropdownProps> = (props) => {
       clearInput={() => clearInput('brand')}
       editFn={editCarBrand}
       deleteFn={deleteCarBrand}
-      // onEditSuccess={(updatedBrand) => setSelectedBrand(updatedBrand as CarBrand)}
     />}
     </div>
     <div className="flex flex-col md:flex-row md:space-x-4 md:mb-0 z-40">
@@ -116,7 +115,7 @@ const BrandAndModelsDropdown: FC<BrandAndModelsDropdownProps> = (props) => {
         {selectedModel.name &&
           <button
             onClick={() => toggleModal('model', true)} 
-            className="flex h-10 mt-11 md:mt-11 items-center px-3 bg-black text-white rounded"
+            className="flex h-10 mt-9 md:mt-9 items-center px-3 bg-black text-white rounded"
           >
             Edit
           </button>

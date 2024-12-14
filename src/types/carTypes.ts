@@ -18,7 +18,7 @@ export interface CombinedData {
 }
 
 export type TableData = {
-  id: number,
+  id: string,
   brand: string,
   model: string,
   modification: string | null,

@@ -1,5 +1,6 @@
-import { FC, useState } from "react";
-import { CarModificationData } from "@/lib/_generated/graphql_sdk";
+import { FC, SetStateAction, useState, Dispatch } from "react";
+import { CarCoupe, CarModificationData, InputMaybe } from "@/lib/_generated/graphql_sdk";
+import DropdownNoSearch from "./DropdownNoSearch";
 
 type ModalProps = {
   title: string;
@@ -10,6 +11,7 @@ type ModalProps = {
     name: string;
     horsePower: number;
     weight: number;
+    coupe: InputMaybe<CarCoupe> | undefined
   };
   onInputChange: (value: { id: string; name: string }) => void;
   clearInput: () => void;
@@ -27,22 +29,19 @@ const ModificationModel: FC<ModalProps> = ({
   editFn,
   deleteFn
 }) => {
-  const { id, name, horsePower, weight } = inputData;
+  const { id, name, horsePower, weight, coupe } = inputData;
 
   const [modifiedName, setModifiedName] = useState(name);
-  const [modifiedHorsepower, setModifiedHorsepower] = useState(horsePower);
-  const [modifiedWeight, setModifiedWeight] = useState(weight);
+  const [modifiedHorsepower, setModifiedHorsepower] = useState<number>(horsePower);
+  const [modifiedWeight, setModifiedWeight] = useState<number>(weight);
+  const [selectedCoupe, setSelectedCoupe] = useState<InputMaybe<CarCoupe> | undefined>(coupe)
 
-  const handleHorsepowerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setModifiedHorsepower(Number(e.target.value));
-  }
-
-  const handleWeightChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setModifiedWeight(Number(e.target.value));
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, updater: Dispatch<SetStateAction<number>>) => {
+    updater(Number(e.target.value));
   }
 
   const handleSave = () => {
-    const updatedData = { id, name: modifiedName, horsePower: modifiedHorsepower, weight: modifiedWeight };
+    const updatedData: CarModificationData = { id, name: modifiedName, horsePower: modifiedHorsepower, weight: modifiedWeight, coupe: selectedCoupe };
     editFn(updatedData);
   }
 
@@ -54,6 +53,7 @@ const ModificationModel: FC<ModalProps> = ({
       <button onClick={closeFn}>X</button>
       </div>
       <p  className='text-black-700 mb-2'>{subTitle}</p>
+      <label className="uppercase text-sm">Name</label>
       <input
         value={modifiedName}
         onChange={(e) => {
@@ -61,30 +61,41 @@ const ModificationModel: FC<ModalProps> = ({
           onInputChange({ id, name: e.target.value });
         }}
         placeholder="Enter modification name"
-        className='border border-black rounded p-2'
+        className='border border-black rounded p-2 w-full'
       />
       <div>
-        <label className='flex justify-between text-sm font-semibold mb-1'>Horsepower</label>
+      <DropdownNoSearch
+          title={'coupe'}
+          dropdownLabel={'select a car coupe'}
+          listItems={Object.values(CarCoupe)}
+          handleSelection={(item) => setSelectedCoupe(item as CarCoupe)}
+          selectedItem={selectedCoupe ?? ''}
+      />
+      </div>
+      <div className="mt-4">
+        <label className="uppercase text-sm">Horsepower</label>
         <input
           type="number"
           value={modifiedHorsepower}
-          onChange={handleHorsepowerChange}
+          onChange={(e) => handleInputChange(e, setModifiedHorsepower)}
           min={50}
           placeholder="Horsepower"
-          className='border border-black rounded p-2'
+          className='border border-black rounded p-2 w-full'
         />
       </div>
       <div>
-        <label className='flex justify-between text-sm font-semibold mb-1'>Weight</label>
+        <label className="uppercase text-sm">Weight</label>
         <input
           type="number"
           value={modifiedWeight}
-          onChange={handleWeightChange}
+          onChange={(e) => handleInputChange(e, setModifiedWeight)}
           min={500}
-          placeholder="Weight"
-          className='border border-black rounded p-2'
+          placeholder={weight.toString()}
+          className='border border-black rounded p-2 w-full'
         />
       </div>
+
+
       <div className="flex justify-between mt-4">
         <button
           onClick={handleSave}

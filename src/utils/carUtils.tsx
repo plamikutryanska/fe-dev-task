@@ -1,4 +1,5 @@
-import {CombinedData, TableData} from '../types/carTypes'
+import {CombinedData, TableData, CombinedDataModels} from '@/types/carTypes'
+import {CarModification, CarModificationData} from '@/lib/_generated/graphql_sdk'
 
 export const handleTableData = (data: CombinedData[] ) => {
   return data.flatMap(car => {
@@ -29,4 +30,23 @@ export const handleTableData = (data: CombinedData[] ) => {
       }
     })
   })
+}
+
+export const getCarModificationsByBrandModel = (data: CombinedData[], brandId: string, modelId: string): CombinedDataModels[] => {
+  return data
+          .filter((car) => car.brand.id.toString() === brandId.toString())
+          .flatMap((model) => model.models.filter((mod) => mod.id.toString() === modelId.toString()))
+}
+
+export const getModificationNameId = (modifications: CarModification[]): {id: string, name: string}[] => {
+  return modifications?.map((item) => ({
+    id: item.id,
+    name: item.name
+  }))
+}
+
+export const getSelectedModificationDetails = (modifications: CarModificationData[], selectedModId: string, defaultModification: CarModificationData): CarModificationData => {
+  return (
+    modifications?.find((item) => item.id === selectedModId) || defaultModification
+  )
 }

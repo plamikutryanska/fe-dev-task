@@ -317,12 +317,13 @@ function useCarDetails(client: GraphQLClient) {
 
   const editCarModification = async (modificationData: CarModification) => {
     try {
-      const { id, name, coupe, horsePower, weight } = modificationData;
+      const { id, name, horsePower, weight, coupe } = modificationData;
+    
       if (!id || !name) return;
-  
+      console.log('COUPE ====>', coupe)
       const response = await client.request<{ editCarModification: CarModification }>(
         EDIT_CAR_MODIFICATIONS,
-        { data: { id, name, coupe, horsePower, weight } }
+        { data: { id, name, horsePower, weight, coupe } }
       );
       
       const updatedModification = response.editCarModification;

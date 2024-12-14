@@ -39,7 +39,7 @@ const DropdownSearch: FC<DropdownSearchProps> = (props) => {
   const searchedResult = listItems?.filter(item => item.name.toLowerCase().includes(search.toLocaleLowerCase()))
 
   return (
-    <div className="relative w-64 mt-6 flex flex-col h-12">
+    <div className="relative w-64 mt-4 mb-4 flex flex-col h-12">
       <label className="uppercase text-sm">
         {isRequired ? `${title}*` : title}
       </label>

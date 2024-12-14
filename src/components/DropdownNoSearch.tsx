@@ -15,12 +15,12 @@ const DropdownNoSearch: FC<DropdownNoSearchProps> = (props) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
 
   return (
-    <div className="relative w-64 mt-6 flex flex-col h-12">
+    <div className="relative w-64 mt-2 flex flex-col h-12 w-full">
       <label className="uppercase text-sm">
         {title}
       </label>
       <button 
-        className={`w-full px-3 py-2 border border-white rounded focus:outline-none ${disabled ? "bg-violet-200" : "bg-white"}`}
+        className={`w-full px-3 py-2 border border-black rounded focus:outline-none`}
         onClick={() => setIsOpen(!isOpen)}
         disabled={disabled}
       >
@@ -29,7 +29,7 @@ const DropdownNoSearch: FC<DropdownNoSearchProps> = (props) => {
       {
         isOpen ? (
           <div className="absolute mt-14 w-64 h-auto bg-white z-50">
-          <ul className="max-h-80 overflow-y-auto w-full px-3 py-2 border-black rounded bg-white focus:outline-none shadow">
+          <ul className="max-h-52 overflow-y-auto w-full px-3 py-2 border-black rounded bg-white focus:outline-none shadow">
           {         
             listItems.map((item, index) => {
               return (
