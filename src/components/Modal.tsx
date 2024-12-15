@@ -1,4 +1,5 @@
 import { CarBrand, CarModel } from "@/lib/_generated/graphql_sdk"
+import { useState } from "react"
 
 type ModalProps<T> = {
   title: string
@@ -9,13 +10,13 @@ type ModalProps<T> = {
   clearInput: () => void
   editFn: (id: string, name: string) => void
   deleteFn: (id: string) => void
+  editMessage: string,
   onEditSuccess?: (updatedItem: CarBrand | Pick<CarModel, "id" | "name">) => void
 }
 
 const Modal = <T extends {id: string, name: string}>(props: ModalProps<T>) => {
 
-  const {title, subTitle, closeFn, inputData, onInputChange, clearInput, editFn, deleteFn, onEditSuccess} = props
-
+  const {title, subTitle, closeFn, inputData, onInputChange, clearInput, editFn, deleteFn, onEditSuccess, editMessage} = props
   return (
     <div className='fixed inset-0 bg-violet-500 bg-opacity-30 flex justify-center items-center z-50'>
       <div className='bg-white rounded-lg p-6 shadow-lg w-100'>
@@ -33,6 +34,7 @@ const Modal = <T extends {id: string, name: string}>(props: ModalProps<T>) => {
             className='border border-black rounded p-2 w-full'
           />
       </div>
+      <div>{editMessage}</div>
         <div className='flex justify-between mt-4'>
         <button
             onClick={async () => {

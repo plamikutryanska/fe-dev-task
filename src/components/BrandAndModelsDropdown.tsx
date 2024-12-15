@@ -25,7 +25,6 @@ const BrandAndModelsDropdown: FC<BrandAndModelsDropdownProps> = (props) => {
   const {mutateAsync: deleteCarModel } = useDeleteCarModel()
   const {mutateAsync: editCarModel } = useEditCarModel()
 
-
   const [modalState, setModalState] = useState<{isBrandModalOpen: boolean, isModelModalOpen: boolean}>({
     isBrandModalOpen: false,
     isModelModalOpen: false
@@ -35,6 +34,8 @@ const BrandAndModelsDropdown: FC<BrandAndModelsDropdownProps> = (props) => {
     brand: selectedBrand,
     model: selectedModel
   })
+
+  const [successMessage, setSuccessMessage] = useState<string>('')
 
   const toggleModal = (modalType: 'brand' | 'model', isOpen: boolean): void => {
     setModalState((prv) => ({
@@ -58,6 +59,7 @@ const BrandAndModelsDropdown: FC<BrandAndModelsDropdownProps> = (props) => {
 
   const clearInput = (type: 'brand' | 'model'): void => {
     setInputState((prv) => ({...prv, [type]: {id: "", name: ""}}))
+    setSuccessMessage('')
   }
 
   const handleSelection = (type: 'brand' | 'model', item: CarBrand | PartialCarModel): void => {
@@ -69,6 +71,17 @@ const BrandAndModelsDropdown: FC<BrandAndModelsDropdownProps> = (props) => {
       setInputState((prv) => ({...prv, model: item as PartialCarModel}))
     }
   }
+
+
+  const handleEditCarBrand = async (id: string, name: string) => {
+    try {
+      const updatedBrand = await editCarBrand({ id, name });
+      setSuccessMessage(`Successfully updated brand: ${updatedBrand.name}`);
+    } catch (error) {
+      console.error("Failed to update car brand:", error);
+      setSuccessMessage("Failed to update brand.");
+    }
+  };
 
   return (
     <div className="flex flex-col items-center">
@@ -100,8 +113,9 @@ const BrandAndModelsDropdown: FC<BrandAndModelsDropdownProps> = (props) => {
       inputData={inputState.brand}
       onInputChange={(value) => handleInputChange('brand', value)}
       clearInput={() => clearInput('brand')}
-      editFn={() => editCarBrand({id: selectedBrand.id, name: inputState.brand.name})}
+      editFn={() => handleEditCarBrand(selectedBrand.id, inputState.brand.name)}
       deleteFn={( () => deleteCarBrand({id: selectedBrand.id}))}
+      editMessage={successMessage}
     />}
     
     </div>
@@ -137,6 +151,7 @@ const BrandAndModelsDropdown: FC<BrandAndModelsDropdownProps> = (props) => {
       clearInput={() => clearInput('model')}
       editFn={() => editCarModel({id: selectedModel.id, name: inputState.model.name})}
       deleteFn={() => deleteCarModel({id: selectedModel.id})}
+      editMessage={successMessage}
     />}
     </div>
   </div>

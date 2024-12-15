@@ -5,6 +5,7 @@ import { ADD_CAR_MODEL, GET_CAR_MODELS, DELETE_CAR_MODEL, EDIT_CAR_MODEL } from 
 import { GET_CAR_MODIFICATIONS, DELETE_CAR_MODIFICATIONS, ADD_CAR_MODIFICATIONS, EDIT_CAR_MODIFICATIONS } from '@/queries/carModifications'
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query'
 import { CarBrand, CarCoupe, CarModel } from '@/lib/_generated/graphql_sdk'
+import { CombinedResponse } from './useBrandsWithModels'
 
 type AddCarBrandsResponse = {
   createCarBrand: CarBrand
@@ -75,6 +76,7 @@ export const useAddCarBrand = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['carBrands'] })
+      queryClient.invalidateQueries({ queryKey: ['brandsWithModels'] })
     }
 
   })
@@ -93,6 +95,7 @@ export const useDeleteCarBrand = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['carBrands'] })
+      queryClient.invalidateQueries({ queryKey: ['brandsWithModels'] })
     }
   })
 }
@@ -108,8 +111,26 @@ export const useEditCarBrand = () => {
       )
       return response.editCarBrand
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['carBrands'] })
+    onSuccess: (updatedBrand) => {
+      queryClient.invalidateQueries({ queryKey: ['brandsWithModels'] })
+
+      queryClient.setQueryData<CombinedResponse[]>(['brandsWithModels'], (oldData) => {
+        if (!oldData) return []
+
+        return oldData.map((brandData) => {
+          if (brandData.brand.id === updatedBrand.id) {
+            return {
+              ...brandData,
+              brand: updatedBrand,
+            }
+          }
+          return brandData
+        })
+      })
+      console.log('Edit is successful')
+    },
+    onError: (error) => {
+      console.log('Error editing: ', error)
     }
   })
 }
@@ -139,6 +160,7 @@ export const useAddCarModel = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['carModels'] })
+      queryClient.invalidateQueries({ queryKey: ['brandsWithModels'] })
     }
 
   })
@@ -157,6 +179,7 @@ export const useDeleteCarModel = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['carModels'] })
+      queryClient.invalidateQueries({ queryKey: ['brandsWithModels'] })
     }
   })
 }
@@ -172,8 +195,9 @@ export const useEditCarModel = () => {
       )
       return response.editCarModel
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['carModels'] })
+    onSuccess: (updatedModel) => {
+      queryClient.invalidateQueries({ queryKey: ['carModels', updatedModel.id] })
+      queryClient.invalidateQueries({ queryKey: ['brandsWithModels'] })
     }
   })
 }
@@ -202,6 +226,7 @@ export const useAddCarModification = () => {
     },
     onSuccess: (_, { modelId }) => {
       queryClient.invalidateQueries({ queryKey: ['carModifications', modelId] })
+      queryClient.invalidateQueries({ queryKey: ['brandsWithModels'] })
     }
   })
 }
@@ -219,6 +244,7 @@ export const useDeleteCarModification = () => {
     },
     onSuccess: (_, { modelId }) => {
       queryClient.invalidateQueries({ queryKey: ['carModifications', modelId] })
+      queryClient.invalidateQueries({ queryKey: ['brandsWithModels'] })
     }
   })
 }
@@ -228,7 +254,6 @@ export const useEditCarModification = () => {
 
   return useMutation<CarModification, Error, CarModification>({
     mutationFn: async (modification) => {
-      console.log('modification ====>', modification)
       const response = await graphqlClient.request<EditCarModificationResponse>(
         EDIT_CAR_MODIFICATIONS,
         { data: modification }
@@ -237,6 +262,7 @@ export const useEditCarModification = () => {
     },
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: ['carModifications', id] })
+      queryClient.invalidateQueries({ queryKey: ['brandsWithModels'] })
     }
   })
 }
