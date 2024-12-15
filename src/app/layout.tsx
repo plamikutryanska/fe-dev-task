@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { CarProvider } from '@/store/CarContextProvider'
+import QueryProvider from '@/store/QueryClientProvider'
 import './globals.css'
 
 
@@ -16,9 +16,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-      <CarProvider>
+      <QueryProvider>
         {children}
-      </CarProvider>
+      </QueryProvider>
       </body>
     </html>
   )

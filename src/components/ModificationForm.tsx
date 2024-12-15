@@ -2,16 +2,26 @@ import { FC, useMemo, useState } from "react"
 import DropdownSearch from "./DropdownSearch"
 import ModificationModel from "./ModificationModel"
 import { InfoField } from "./InfoField"
-import { useCarDetailsContext } from "@/store/CarContextProvider"
 import { CarCoupe, CarModificationData} from "@/lib/_generated/graphql_sdk"
 import { getCarModificationsByBrandModel, getModificationNameId, getSelectedModificationDetails } from "@/utils/carUtils"
+import {useBrandsWithModels} from '@/hooks/useBrandsWithModels'
+import { useAddCarModification, useDeleteCarModification, useEditCarModification } from "@/hooks/useCarData"
 
 type ModificationFormProps = {
   brandId: string
   modelId: string
 }
 
-const defaultCarModification: CarModificationData = {
+type CarModification = {
+  id: string,
+  name: string,
+  coupe: CarCoupe,
+  weight: number,
+  horsePower: number
+}
+
+
+const defaultCarModification: CarModification = {
   id:'',
   name: '',
   coupe: CarCoupe.Convertible,
@@ -21,25 +31,29 @@ const defaultCarModification: CarModificationData = {
 
 
 const ModificationForm: FC<ModificationFormProps> = ({brandId, modelId}) => {
-  const {data, deleteCarModification, addCarModifications, editCarModification} = useCarDetailsContext()
+  const { data: brandsWithModels, isError,isLoading } = useBrandsWithModels();
+  const {mutateAsync: addCarModification } = useAddCarModification()
+  const {mutateAsync: deleteCarModification } = useDeleteCarModification()
+  const {mutateAsync: editCarModification } = useEditCarModification()
 
   const [selectedModification, setSelectedModification] =  useState<CarModificationData>(defaultCarModification)
+
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
   const [selectedCoupe, setSelectedCoupe] = useState<CarCoupe | ''>('')
 
-  const selectedBrand = data.find((b) => b.brand.id === brandId)
-  const selectedModel = selectedBrand?.models.filter(mod => mod.id.toString() === modelId.toString())[0]
+  const selectedBrand = brandsWithModels && brandsWithModels.find((b) => b.brand.id === brandId)
+  const selectedModel = selectedBrand?.models.filter(mod => mod.model.id.toString() === modelId.toString())[0]
 
   const carModificationsByBrandModel = useMemo(() => {
-    return getCarModificationsByBrandModel(data, brandId, modelId)
-  }, [data, brandId, modelId])
+    return brandsWithModels && getCarModificationsByBrandModel(brandsWithModels, brandId, modelId)
+  }, [brandsWithModels, brandId, modelId])
 
   const handleModificationNameId = useMemo(() => {
-    return getModificationNameId(carModificationsByBrandModel[0]?.modifications)
+    return carModificationsByBrandModel && getModificationNameId(carModificationsByBrandModel[0]?.modifications)
   }, [carModificationsByBrandModel])
 
   const selectedModificationDetails = useMemo(() => {
-    return getSelectedModificationDetails(
+    return carModificationsByBrandModel && getSelectedModificationDetails(
       carModificationsByBrandModel[0]?.modifications,
       selectedModification.id,
       defaultCarModification
@@ -55,29 +69,28 @@ const ModificationForm: FC<ModificationFormProps> = ({brandId, modelId}) => {
     setSelectedModification({id: '', name: ''})
   }
 
-  const handleEditModification = async (updatedData: CarModificationData) => {
-    const {id, name, horsePower, weight} = updatedData
+  const handleEditModification = async (updatedData: CarModification) => {
+    const {id, name, horsePower, weight, coupe} = updatedData
     const validHorsePower = horsePower ?? 50
     const validWeight = weight ?? 500
-    const defaultCoupe = selectedCoupe || CarCoupe.Convertible //fallback to convertable
+    const defaultCoupe = coupe || selectedCoupe || CarCoupe.Convertible //fallback to convertable
 
-    if(id && name){
+    if(id && name && selectedModel?.model.id){
       await editCarModification({
         id,
         name,
         horsePower: validHorsePower,
         weight: validWeight,
         coupe: defaultCoupe,
-        model: {
-          id: selectedModel?.id.toString() || '',
-          name: selectedModel?.name || '', 
-          brand: {id: selectedBrand?.brand.id.toString() || '', name: selectedBrand?.brand.name || ''
-
-          }}
       });
       setIsModalOpen(false)
+    } else {
+      console.log('Missing required field')
     }
   };
+
+  console.log('selectedCoupe ====>', selectedCoupe)
+  console.log('selectedModification ====>', selectedModification)
 
   return (         
     <div className="flex flex-col justify-between items-center">
@@ -86,17 +99,17 @@ const ModificationForm: FC<ModificationFormProps> = ({brandId, modelId}) => {
     <DropdownSearch
       title='modification name'
       dropdownLabel="Select modification name"
-      listItems={handleModificationNameId}
+      listItems={handleModificationNameId ?? []}
       handleSelection={(item) => setSelectedModification(item)}
-      createButtonFn={({name}) => addCarModifications(modelId, name) }
+      createButtonFn={({name}) => addCarModification({modelId, name})}
       selectedItem={selectedModification.name || ''}
       createContext={'modification'}
       disabled={modelId === ''}
    />
     </div>
-    <InfoField label="coupe" value={selectedModificationDetails.coupe || 'no coupe details'}/>
-    <InfoField label="horsepower" value={selectedModificationDetails.horsePower || 0}/>
-    <InfoField label="weight" value={selectedModificationDetails.weight || 0}/>
+    <InfoField label="coupe" value={selectedModificationDetails?.coupe || 'no coupe details'}/>
+    <InfoField label="horsepower" value={selectedModificationDetails?.horsePower || 0}/>
+    <InfoField label="weight" value={selectedModificationDetails?.weight || 0}/>
     {selectedModification.name &&
       <button
         onClick={() => setIsModalOpen(true)} 
@@ -112,14 +125,14 @@ const ModificationForm: FC<ModificationFormProps> = ({brandId, modelId}) => {
       inputData={{
         id: selectedModification.id,
         name: selectedModification.name || '',
-        horsePower: selectedModificationDetails.horsePower || 0,
-        weight: selectedModificationDetails.weight || 0,
-        coupe: selectedModificationDetails.coupe || CarCoupe.Convertible
+        horsePower: selectedModificationDetails?.horsePower || 0,
+        weight: selectedModificationDetails?.weight || 0,
+        coupe: selectedModificationDetails?.coupe || CarCoupe.Convertible //fallback to Convertible
       }}
       onInputChange={handleModalInputChange}
       clearInput={clearModalInput}
       editFn={handleEditModification}
-      deleteFn={deleteCarModification}
+      deleteFn={() => deleteCarModification({id: selectedModification.id, modelId: modelId})}
       selectedCoupe={selectedCoupe}
       setSelectedCoupe={setSelectedCoupe}
       />

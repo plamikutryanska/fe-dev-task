@@ -1,5 +1,5 @@
 
-import { CarBrand, CarCoupe, CarModification } from "@/lib/_generated/graphql_sdk"
+import { CarBrand, CarCoupe } from "@/lib/_generated/graphql_sdk"
 
 export interface CarModel {
   id: number
@@ -25,4 +25,12 @@ export type TableData = {
   coupe: CarCoupe | null,
   horsepower: number | null,
   weight: number | null
+}
+
+export type CarModification = {
+  id: string,
+  name: string,
+  coupe: CarCoupe,
+  weight: number,
+  horsePower: number
 }

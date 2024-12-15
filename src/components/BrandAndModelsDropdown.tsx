@@ -1,9 +1,9 @@
 import { FC, SetStateAction, useState, Dispatch } from "react"
-import { useCarDetailsContext } from "@/store/CarContextProvider"
 import {CarBrand, CarModel} from '@lib/_generated/graphql_sdk'
-
 import DropdownSearch from "./DropdownSearch"
 import Modal from "./Modal"
+import { useAddCarBrand, useDeleteCarBrand, useEditCarBrand, useAddCarModel, useDeleteCarModel, useEditCarModel } from "@/hooks/useCarData"
+import {useBrandsWithModels} from '@/hooks/useBrandsWithModels'
 
 type PartialCarModel = Pick<CarModel, "id" | "name">
 
@@ -17,7 +17,14 @@ type BrandAndModelsDropdownProps = {
 const BrandAndModelsDropdown: FC<BrandAndModelsDropdownProps> = (props) => {
   const {selectedBrand, setSelectedBrand, selectedModel, setSelectedModel} = props
 
-  const {data, addCarBrand, editCarBrand, deleteCarBrand, deleteCarModel, addCarModel, editCarModel} = useCarDetailsContext()
+  const {data: carData} = useBrandsWithModels()
+  const {mutateAsync, isError} = useAddCarBrand()
+  const {mutateAsync: deleteCarBrand} = useDeleteCarBrand()
+  const {mutateAsync: editCarBrand} = useEditCarBrand()
+  const {mutateAsync: addCarModel } = useAddCarModel()
+  const {mutateAsync: deleteCarModel } = useDeleteCarModel()
+  const {mutateAsync: editCarModel } = useEditCarModel()
+
 
   const [modalState, setModalState] = useState<{isBrandModalOpen: boolean, isModelModalOpen: boolean}>({
     isBrandModalOpen: false,
@@ -37,12 +44,12 @@ const BrandAndModelsDropdown: FC<BrandAndModelsDropdownProps> = (props) => {
   }
 
   const handleDropdownItems = (): CarBrand[] => {
-    return data.map((item => item.brand))
+    return carData?.map((item => item.brand)) || []
   }
 
   const handleModelsDropdown = () => {
-    const brandModels = data.filter(brand => brand.brand.name === selectedBrand.name)
-    return brandModels.flatMap(b => b.models)
+    const brandModels = carData && carData.filter(brand => brand.brand.name === selectedBrand.name) || []
+    return brandModels.flatMap(b => b.models.map(m => m.model))
   }
 
   const handleInputChange = (type: 'brand' | 'model', value: CarBrand | PartialCarModel): void => {
@@ -66,14 +73,13 @@ const BrandAndModelsDropdown: FC<BrandAndModelsDropdownProps> = (props) => {
   return (
     <div className="flex flex-col items-center">
     <div className="flex flex-col md:flex-row md:space-x-4 md:mb-0">
-
-    <div className="flex flex-row md:flex-row md:mb-0 z-50">
+    <div className="flex flex-row md:flex-row md:mb-0 z-5">
       <DropdownSearch 
         title='brand'
         dropdownLabel="Select a brand"
         listItems={handleDropdownItems()}
         handleSelection={(item) => handleSelection('brand', item)}
-        createButtonFn={({name}) => addCarBrand(name)}
+        createButtonFn={({name}) => mutateAsync({name})}
         selectedItem={selectedBrand.name}
         createContext="brand"
         isRequired
@@ -94,9 +100,10 @@ const BrandAndModelsDropdown: FC<BrandAndModelsDropdownProps> = (props) => {
       inputData={inputState.brand}
       onInputChange={(value) => handleInputChange('brand', value)}
       clearInput={() => clearInput('brand')}
-      editFn={editCarBrand}
-      deleteFn={deleteCarBrand}
+      editFn={() => editCarBrand({id: selectedBrand.id, name: inputState.brand.name})}
+      deleteFn={( () => deleteCarBrand({id: selectedBrand.id}))}
     />}
+    
     </div>
     <div className="flex flex-col md:flex-row md:space-x-4 md:mb-0 z-40">
     <div className="flex flex-row md:flex-row md:mb-0">
@@ -106,7 +113,7 @@ const BrandAndModelsDropdown: FC<BrandAndModelsDropdownProps> = (props) => {
           listItems={handleModelsDropdown()}
           handleSelection={(item) => handleSelection('model', item)}
           selectedItem={selectedModel.name}
-          createButtonFn={({name}) => addCarModel(selectedBrand.id.toString(), name)}
+          createButtonFn={({name}) => addCarModel({brandId: selectedBrand.id.toString(), name: name})}
           createContext="model"
           additionalParam={selectedBrand.id.toString()}
           disabled={!selectedBrand.name}
@@ -128,14 +135,12 @@ const BrandAndModelsDropdown: FC<BrandAndModelsDropdownProps> = (props) => {
       inputData={inputState.model}
       onInputChange={(value) => handleInputChange('model', value)}
       clearInput={() => clearInput('model')}
-      editFn={editCarModel}
-      deleteFn={deleteCarModel}
+      editFn={() => editCarModel({id: selectedModel.id, name: inputState.model.name})}
+      deleteFn={() => deleteCarModel({id: selectedModel.id})}
     />}
-
     </div>
   </div>
-
   )
 }
 
-export  default BrandAndModelsDropdown
+export default BrandAndModelsDropdown

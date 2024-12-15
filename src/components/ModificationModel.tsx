@@ -1,6 +1,7 @@
 import { FC, SetStateAction, useState, Dispatch } from "react";
-import { CarCoupe, CarModificationData, InputMaybe } from "@/lib/_generated/graphql_sdk";
+import { CarCoupe,InputMaybe } from "@/lib/_generated/graphql_sdk";
 import DropdownNoSearch from "./DropdownNoSearch";
+import { CarModification } from '@/types/carTypes'
 
 type ModalProps = {
   title: string;
@@ -15,7 +16,7 @@ type ModalProps = {
   };
   onInputChange: (value: { id: string; name: string }) => void;
   clearInput: () => void;
-  editFn: (modificationData: CarModificationData) => void;
+  editFn: (modificationData: CarModification) => void;
   deleteFn: (id: string) => void;
   selectedCoupe: CarCoupe | string
   setSelectedCoupe: (coupe: CarCoupe) => void
@@ -44,7 +45,7 @@ const ModificationModel: FC<ModalProps> = ({
   }
 
   const handleSave = () => {
-    const updatedData: CarModificationData = {
+    const updatedData: CarModification = {
        id,
        name: modifiedName,
        horsePower: modifiedHorsepower,
@@ -52,6 +53,9 @@ const ModificationModel: FC<ModalProps> = ({
        coupe: selectedCoupe as CarCoupe 
       };
     editFn(updatedData);
+  }
+  const handleCoupeChange = (value: CarCoupe) => {
+    setSelectedCoupe(value)
   }
 
   return (
@@ -77,7 +81,7 @@ const ModificationModel: FC<ModalProps> = ({
           title={'coupe'}
           dropdownLabel={'select a car coupe'}
           listItems={Object.values(CarCoupe)}
-          handleSelection={(item) => setSelectedCoupe(item as CarCoupe)}
+          handleSelection={handleCoupeChange}
           selectedItem={selectedCoupe ?? ''}
       />
       </div>

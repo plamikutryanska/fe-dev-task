@@ -3,30 +3,30 @@ import { FC } from 'react'
 import Link from 'next/link'
 import EmptyState from '@/components/EmptyState'
 import Table from '@/components/Table'
-import { useCarDetailsContext } from '@/store/CarContextProvider'
 import { handleTableData } from '@/utils/carUtils'
+import { useBrandsWithModels } from '@/hooks/useBrandsWithModels'
 import './globals.css'
 
-
 const Home:FC = () => {
-  const {data, loading, error} = useCarDetailsContext()
-
-    if(loading) {
+  const { data: brandsWithModels, isError,isLoading } = useBrandsWithModels();
+    if(isLoading) {
       return <EmptyState message={'Loading...'}/>
     }
-    if(error) {
+    if(isError) {
       return <EmptyState message={'An Error has occured'}/>
     }
 
-    if(!loading && (!data || data.length === 0)){
+    if(!isLoading && (!brandsWithModels || brandsWithModels.length === 0)){
       return <EmptyState message={'No Car Data Available'}/>
     }
+
+  if(!brandsWithModels) return null
 
   return (
     <div className="p-8">
       <Link href={'/edit'} className='flex items-center gap-2 p-2 bg-black text-white rounded float-right'>Manage Items</Link>
       <Table 
-        data={handleTableData(data)}
+        data={brandsWithModels && handleTableData(brandsWithModels) || []}
         tableTitle='Car Details'
         headerAbbreviations={{
           weight: 'Wgt',
