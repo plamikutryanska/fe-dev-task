@@ -72,6 +72,8 @@ const BrandAndModelsDropdown: FC<BrandAndModelsDropdownProps> = (props) => {
     }
   }
 
+  const brandNameToDisplay = carData?.find((item => item.brand.id === selectedBrand.id))?.brand.name || ''
+  const modelNameToDisplay = carData?.flatMap(item => item.models).filter(mod => mod.model.id === selectedModel.id)[0]?.model.name || ''
 
   const handleEditCarBrand = async (id: string, name: string) => {
     try {
@@ -93,7 +95,7 @@ const BrandAndModelsDropdown: FC<BrandAndModelsDropdownProps> = (props) => {
         listItems={handleDropdownItems()}
         handleSelection={(item) => handleSelection('brand', item)}
         createButtonFn={({name}) => mutateAsync({name})}
-        selectedItem={selectedBrand.name}
+        selectedItem={brandNameToDisplay}
         createContext="brand"
         isRequired
       />
@@ -126,7 +128,7 @@ const BrandAndModelsDropdown: FC<BrandAndModelsDropdownProps> = (props) => {
           dropdownLabel="Select a model"
           listItems={handleModelsDropdown()}
           handleSelection={(item) => handleSelection('model', item)}
-          selectedItem={selectedModel.name}
+          selectedItem={modelNameToDisplay}
           createButtonFn={({name}) => addCarModel({brandId: selectedBrand.id.toString(), name: name})}
           createContext="model"
           additionalParam={selectedBrand.id.toString()}
