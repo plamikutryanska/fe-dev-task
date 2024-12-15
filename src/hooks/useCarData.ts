@@ -1,8 +1,8 @@
 'use client'
 import { graphqlClient } from '@/lib/graphqlClient'
-import { ADD_CAR_BRANDS, GET_CAR_BRANDS, DELETE_CAR_BRAND, EDIT_CAR_BRAND } from '@/lib/queries/carBrands'
-import { ADD_CAR_MODEL, GET_CAR_MODELS, DELETE_CAR_MODEL, EDIT_CAR_MODEL } from '@/lib/queries/carModels'
-import { GET_CAR_MODIFICATIONS, DELETE_CAR_MODIFICATIONS, ADD_CAR_MODIFICATIONS, EDIT_CAR_MODIFICATIONS } from '@/lib/queries/carModifications'
+import { ADD_CAR_BRANDS, GET_CAR_BRANDS, DELETE_CAR_BRAND, EDIT_CAR_BRAND } from '@/queries/carBrands'
+import { ADD_CAR_MODEL, GET_CAR_MODELS, DELETE_CAR_MODEL, EDIT_CAR_MODEL } from '@/queries/carModels'
+import { GET_CAR_MODIFICATIONS, DELETE_CAR_MODIFICATIONS, ADD_CAR_MODIFICATIONS, EDIT_CAR_MODIFICATIONS } from '@/queries/carModifications'
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query'
 import { CarBrand, CarCoupe, CarModel } from '@/lib/_generated/graphql_sdk'
 

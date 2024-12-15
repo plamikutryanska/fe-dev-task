@@ -89,8 +89,7 @@ const ModificationForm: FC<ModificationFormProps> = ({brandId, modelId}) => {
     }
   };
 
-  console.log('selectedCoupe ====>', selectedCoupe)
-  console.log('selectedModification ====>', selectedModification)
+  const coupeValueToDisplay = (selectedModification.id === '' || !selectedModificationDetails?.coupe) ? 'no coupe details' : selectedModificationDetails?.coupe
 
   return (         
     <div className="flex flex-col justify-between items-center">
@@ -107,7 +106,7 @@ const ModificationForm: FC<ModificationFormProps> = ({brandId, modelId}) => {
       disabled={modelId === ''}
    />
     </div>
-    <InfoField label="coupe" value={selectedModificationDetails?.coupe || 'no coupe details'}/>
+    <InfoField label="coupe" value={coupeValueToDisplay}/>
     <InfoField label="horsepower" value={selectedModificationDetails?.horsePower || 0}/>
     <InfoField label="weight" value={selectedModificationDetails?.weight || 0}/>
     {selectedModification.name &&

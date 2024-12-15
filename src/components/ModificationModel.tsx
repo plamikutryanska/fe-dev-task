@@ -12,7 +12,7 @@ type ModalProps = {
     name: string;
     horsePower: number;
     weight: number;
-    coupe: InputMaybe<CarCoupe> | undefined
+    coupe: InputMaybe<CarCoupe> | null
   };
   onInputChange: (value: { id: string; name: string }) => void;
   clearInput: () => void;

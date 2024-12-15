@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { graphqlClient } from "@/lib/graphqlClient";
-import { GET_CAR_BRANDS } from "@/lib/queries/carBrands";
-import { GET_CAR_MODELS } from "@/lib/queries/carModels";
+import { GET_CAR_BRANDS } from "@/queries/carBrands";
+import { GET_CAR_MODELS } from "@/queries/carModels";
 import { CarBrand, CarModel } from "@/lib/_generated/graphql_sdk";
-import { GET_CAR_MODIFICATIONS } from "@/lib/queries/carModifications";
+import { GET_CAR_MODIFICATIONS } from "@/queries/carModifications";
 import { CarModification } from '@/types/carTypes'
 
 export type CombinedResponse = {
@@ -14,27 +14,8 @@ export type CombinedResponse = {
   }[]
 }
 
-type AddCarBrandsResponse = {
-  createCarBrand: CarBrand
-}
-type DeleteCarBrandsResponse = {
-  deleteCarBrand: boolean
-}
-type EditCarBrandResponse = {
-  editCarBrand: CarBrand
-}
 type CarBrandsResponse = {
   carBrands: CarBrand[]
-}
-type DeleteCarModelResponse = {
-  deleteCarModel: boolean
-}
-
-type EditCarModelResponse = {
-  editCarModel: CarModel
-}
-type AddCarModelResponse = {
-  createCarModel: CarModel
 }
 
 const fetchCarBrands = async (): Promise<CarBrandsResponse> => {
